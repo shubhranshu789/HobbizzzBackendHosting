@@ -8,6 +8,7 @@ const app = express();
 
 app.use(cors())
 require('./model/user')
+require('./model/cabinate')
 
 
 app.use(express.json());
