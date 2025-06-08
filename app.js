@@ -1,3 +1,4 @@
+
 const express = require('express');
 const cors = require('cors');
 
@@ -6,13 +7,18 @@ const cors = require('cors');
 const port = 5000;
 const app = express();
 
+
 app.use(cors())
 require('./model/user')
 require('./model/cabinate')
+require('./model/addActivity')
+
 
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(require('./routes/auth'))
+app.use(require('./routes/activity'))
 
 
 
