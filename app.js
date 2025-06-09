@@ -12,6 +12,8 @@ app.use(cors())
 require('./model/user')
 require('./model/cabinate')
 require('./model/addActivity')
+require('./model/test')
+
 
 
 
