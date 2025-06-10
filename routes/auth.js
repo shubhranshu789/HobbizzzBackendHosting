@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken")
 
 const USER = mongoose.model("USER");
 const CABINATE = mongoose.model("CABINATE");
+const DISTRICT = mongoose.model("DISTRICT");
 const {Jwt_secret} = require("../keys");
 
 
@@ -79,6 +80,67 @@ router.post("/cabinate-signin" , (req , res) => {
 
 
 
+
+router.post("/director-signup" , (req,res)=> {
+    const {name , password ,email} = req.body;
+    const ip = req.headers['cf-connecting-ip'] ||
+                req.headers['x-real-ip'] ||
+                req.headers['x-forwarded-for'] ||
+                req.socket.remoteAddress || '' ;
+
+
+    if(!name ||!password ||!email){
+        return res.status(422).json({error : "Please add all the fields"})
+    }
+
+    DISTRICT.findOne({$or : [{email : email} ]}).then((savedUser) => {
+        if(savedUser){
+            return res.status(422).json({error : "user already exist with that email or userName"})
+        }
+
+
+        bcryptjs.hash(password , 12).then((hashedPassword) => {
+            const teacher = new DISTRICT ({
+                name , 
+                email,    
+                password:hashedPassword, //hiding password,
+                ip
+            })
+        
+            teacher.save()
+            .then(teacher => {res.json({message : "Data Saved"})})
+            .catch(err => {console.log(err)})
+        })
+    })
+})
+
+
+router.post("/director-signin" , (req , res) => {
+    const {email , password} = req.body;
+
+    if(!email || !password){
+        return res.status(422).json({error: "please add all the fields"})
+    }
+
+    DISTRICT.findOne({email:email}).then((savedUser) => {
+        if(!savedUser){
+            return res.status(422).json({error:"Invalid Email"})
+        }
+        bcryptjs.compare(password , savedUser.password).then((match) => {
+            if(match){
+                // return res.status(200).json({message :"Signed In Successufully" })
+                const token = jwt.sign({_id:savedUser.id} , Jwt_secret)
+                const {_id ,name , email } = savedUser
+                res.json({token , user:{_id ,name , email  }})
+                console.log({token , user:{_id ,name , email }})
+            }else{
+                return res.status(422).json({error :"Invalid password" })
+            }
+        })
+        .catch(err => console.log(err))
+        // console.log(savedUser)
+    })
+})
 
 
 
