@@ -1,0 +1,13 @@
+const mongoose = require("mongoose");
+const { ObjectId } = mongoose.Schema.Types;
+
+const droleSchema = new mongoose.Schema({
+    appliedBy: { type: ObjectId, ref: "USER",},
+    club:      { type: String, required: true },
+    interest:  { type: String, required: true },
+    school:    { type: String, required: true },
+    district:  { type: String, required: true },
+    state:     { type: String, required: true },
+});
+
+mongoose.model("DROLE", droleSchema);
