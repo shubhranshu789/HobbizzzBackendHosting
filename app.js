@@ -22,6 +22,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(require('./routes/auth'))
 app.use(require('./routes/activity'))
+app.use(require('./routes/user'))
 
 
 
