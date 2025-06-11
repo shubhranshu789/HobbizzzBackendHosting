@@ -12,7 +12,12 @@ const droleSchema = new mongoose.Schema({
         type: String,
         enum: ['coucil', 'head', 'pending'], // you can define allowed values
         default: 'pending'
-    }
+    },
+    status: {
+        type: String,
+        enum: ['applied', 'approved', 'rejected'], // you can define allowed values
+        default: 'applied'
+    }    
 });
 
 mongoose.model("DROLE", droleSchema);
