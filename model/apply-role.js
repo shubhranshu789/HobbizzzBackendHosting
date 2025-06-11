@@ -8,6 +8,11 @@ const droleSchema = new mongoose.Schema({
     school:    { type: String, required: true },
     district:  { type: String, required: true },
     state:     { type: String, required: true },
+    role: {
+        type: String,
+        enum: ['coucil', 'head', 'pending'], // you can define allowed values
+        default: 'pending'
+    }
 });
 
 mongoose.model("DROLE", droleSchema);

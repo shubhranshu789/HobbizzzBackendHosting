@@ -31,14 +31,74 @@ router.post("/applyRole",require,(req, res) => {
         });
 });
 
-// Fetch all applications
-router.get("/getApplications", (req, res) => {
-    DROLE.find()
-        .then(applications => res.json(applications))
-        .catch(err => {
-            console.error("Error fetching applications:", err);
-            res.status(500).json({ error: "Failed to fetch applications", details: err });
+
+
+// Fetch applied council members for same district (excluding head)
+router.get("/getAppliedCouncil/:headId", async (req, res) => {
+    try {
+        const headId = req.params.headId;
+
+        // Fetch head's application to get their district
+        const headApplication = await DROLE.findById(headId);
+
+        if (!headApplication) {
+            return res.status(404).json({ error: "Head not found" });
+        }
+
+        const district = headApplication.district;
+
+        // Find all applications from same district and role !== 'head'
+        const councilApplications = await DROLE.find({
+            district: district,
+            role: { $ne: "head" }   // not equal to 'head'
         });
+
+        res.json(councilApplications);
+
+    } catch (err) {
+        console.error("Error fetching council applications:", err);
+        res.status(500).json({ error: "Failed to fetch applications", details: err });
+    }
+});
+
+
+
+// Set as Head API
+router.put("/sethead/:id", (req, res) => {
+    DROLE.findByIdAndUpdate(
+        req.params.id,
+        { $set: { role: "head" } },
+        { new: true }
+    )
+    .then(updatedApplication => {
+        if (!updatedApplication) {
+            return res.status(404).json({ error: "Application not found" });
+        }
+        res.json({ message: "Role set as Head", data: updatedApplication });
+    })
+    .catch(err => {
+        console.error("Error updating to head:", err);
+        res.status(500).json({ error: "Failed to update role", details: err });
+    });
+});
+
+// Set as Council API
+router.put("/setcouncil/:id", (req, res) => {
+    DROLE.findByIdAndUpdate(
+        req.params.id,
+        { $set: { role: "council" } },
+        { new: true }
+    )
+    .then(updatedApplication => {
+        if (!updatedApplication) {
+            return res.status(404).json({ error: "Application not found" });
+        }
+        res.json({ message: "Role set as Council", data: updatedApplication });
+    })
+    .catch(err => {
+        console.error("Error updating to council:", err);
+        res.status(500).json({ error: "Failed to update role", details: err });
+    });
 });
 
 
