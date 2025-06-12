@@ -13,7 +13,7 @@ const DISTRICT = mongoose.model("DISTRICT");
 
 
 
-router.post("/create-activity", requireLogin, (req, res) => {
+router.post("/create-activity", requireLoginUser, (req, res) => {
   const { title , desc,pic , category} = req.body;
 
   if (!title || !desc || !pic || !category) {
@@ -40,7 +40,7 @@ router.post("/create-activity", requireLogin, (req, res) => {
     });
 });
 
-router.get("/allActivities", requireLogin, (req, res) => {
+router.get("/allActivities", requireLoginUser, (req, res) => {
   ACTIVITY.find().then((events) => {
     res.json(events);
   });
@@ -57,7 +57,7 @@ router.get("/getactivity/:activityid" , (req,res) => {
 
 
 
-router.post("/register-activity/:activityId", requireLogin, async (req, res) => {
+router.post("/register-activity-user/:activityId", requireLoginUser, async (req, res) => {
   const userId = req.user._id;
   const { activityId } = req.params;
 
@@ -85,7 +85,7 @@ router.post("/register-activity/:activityId", requireLogin, async (req, res) => 
 
 
 
-router.post("/unregister-activity/:activityId", requireLogin, async (req, res) => {
+router.post("/unregister-activity-user/:activityId", requireLoginUser, async (req, res) => {
   const userId = req.user._id;
   const { activityId } = req.params;
 
@@ -109,7 +109,7 @@ router.post("/unregister-activity/:activityId", requireLogin, async (req, res) =
 });
 
 
-router.post("/upload-photo/:eventId", requireLogin, async (req, res) => {
+router.post("/upload-photo-user/:eventId", requireLoginUser, async (req, res) => {
   try {
     const { pic } = req.body;
     const userId = req.user._id.toString();
@@ -142,7 +142,7 @@ router.post("/upload-photo/:eventId", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/has-uploaded/:eventId", requireLogin, async (req, res) => {
+router.get("/has-uploaded-user/:eventId", requireLoginUser, async (req, res) => {
   const userId = req.user._id.toString();
   const eventId = req.params.eventId;
 
@@ -158,7 +158,7 @@ router.get("/has-uploaded/:eventId", requireLogin, async (req, res) => {
 
 
 
-router.get("/event-participants/:eventId", requireLogin, async (req, res) => {
+router.get("/event-participants-user/:eventId", requireLoginUser, async (req, res) => {
   try {
     const event = await ACTIVITY.findById(req.params.eventId);
     if (!event) return res.status(404).json({ error: "Event not found" });
@@ -190,37 +190,6 @@ router.get("/event-participants/:eventId", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/event-participants-user/:eventId", requireLoginUser, async (req, res) => {
-  try {
-    const event = await ACTIVITY.findById(req.params.eventId);
-    if (!event) return res.status(404).json({ error: "Event not found" });
-
-    const registrations = event.Registrations;
-    const uploadsMap = new Map();
-
-    // Map uploadedBy => pic
-    event.uploads.forEach(upload => {
-      uploadsMap.set(upload.uploadedBy.toString(), upload.pic);
-    });
-
-    // Fetch user details for registered users
-    const users = await CABINATE.find({ _id: { $in: registrations } })
-      .select("_id name email ip");
-
-    const participants = users.map(user => ({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      ip: user.ip,
-      pic: uploadsMap.get(user._id.toString()) || null
-    }));
-
-    res.status(200).json({ participants });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
 
 
 
