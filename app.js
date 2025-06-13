@@ -13,7 +13,7 @@ require('./model/user')
 require('./model/cabinate')
 require('./model/addActivity')
 require('./model/test')
-require('./model/district');
+require('./model/DISTRICT');
 require('./model/apply-role');
 
 

@@ -2,17 +2,23 @@ const mongoose = require('mongoose');
 
 
 const districtSchema = new mongoose.Schema({
-    name : {
-        type:String,
-        require:true
+    name : { type:String, require:true} ,
+    total_members:{ type: Number, default: 0 },
+    Max_members:{
+        type: Number,
+        default: 1
     },
-    email:{
-        type: String,
-        require:true
+    chapters: {
+        type:Number,
+        default: 0
     },
-    password:{
-        type: String,
-        require:true
+    students: {
+        type: Number,
+        default: 0
+    },
+    teachers: {
+        type: Number,
+        default: 0
     },
     //add IP
     ip:{
@@ -23,4 +29,4 @@ const districtSchema = new mongoose.Schema({
 
 
 
-mongoose.model("DISTRICT" ,districtSchema )
+module.exports=mongoose.model("DISTRICT" ,districtSchema );
