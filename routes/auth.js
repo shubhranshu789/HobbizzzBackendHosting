@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken")
 
 const USER = mongoose.model("USER");
 const CABINATE = mongoose.model("CABINATE");
-const DISTRICT = mongoose.model("DISTRICT");
+const DIRECTOR = mongoose.model("DIRECTOR");
 const {Jwt_secret} = require("../keys");
 
 
@@ -93,14 +93,14 @@ router.post("/director-signup" , (req,res)=> {
         return res.status(422).json({error : "Please add all the fields"})
     }
 
-    DISTRICT.findOne({$or : [{email : email} ]}).then((savedUser) => {
+    DIRECTOR.findOne({$or : [{email : email} ]}).then((savedUser) => {
         if(savedUser){
             return res.status(422).json({error : "user already exist with that email or userName"})
         }
 
 
         bcryptjs.hash(password , 12).then((hashedPassword) => {
-            const teacher = new DISTRICT ({
+            const teacher = new DIRECTOR ({
                 name , 
                 email,    
                 password:hashedPassword, //hiding password,
@@ -122,7 +122,7 @@ router.post("/director-signin" , (req , res) => {
         return res.status(422).json({error: "please add all the fields"})
     }
 
-    DISTRICT.findOne({email:email}).then((savedUser) => {
+    DIRECTOR.findOne({email:email}).then((savedUser) => {
         if(!savedUser){
             return res.status(422).json({error:"Invalid Email"})
         }
