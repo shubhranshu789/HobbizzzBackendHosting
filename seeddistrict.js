@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-require("./model/DISTRICT"); // adjust path if needed
+require("./model/district"); // adjust path if needed
 
 const District = mongoose.model("DISTRICT"); // ensure this matches your model name
 // connect to your MongoDB
