@@ -40,7 +40,7 @@ router.get("/districtinfo", async (req, res) => {
   }
 
   try {
-    const district = await DISTRICT.findOne({ name: "Varanasi" });
+    const district = await DISTRICT.findOne({ name });
 
     if (!district) {
       return res.status(404).json({ error: "District not found" });
@@ -52,6 +52,7 @@ router.get("/districtinfo", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 
 

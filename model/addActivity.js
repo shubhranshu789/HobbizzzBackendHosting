@@ -16,7 +16,7 @@ const activitySchema = new mongoose.Schema(
     desc: { type: String, required: true },
     pic: { type: String, required: true }, 
     category: { type: String, required: true },
-    postedBy: [{ type: ObjectId, ref: "DISTRICT" }],
+    postedBy: [{ type: ObjectId, ref: "DIRECTOR" }],
     Registrations: [{ type: ObjectId, ref: "USER" }],
 
     uploads: [uploadSchema], 

@@ -6,17 +6,13 @@ const directorSchema = new mongoose.Schema({
         type:String,
         require:true
     },
-    chapters: {
-        type:Number,
-        default: 0
+    email:{
+        type: String,
+        require:true
     },
-    students: {
-        type: Number,
-        default: 0
-    },
-    teachers: {
-        type: Number,
-        default: 0
+    password:{
+        type: String,
+        require:true
     },
     //add IP
     ip:{

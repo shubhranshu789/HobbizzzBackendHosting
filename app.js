@@ -13,8 +13,12 @@ require('./model/user')
 require('./model/cabinate')
 require('./model/addActivity')
 require('./model/test')
+require('./model/district');
+require('./model/apply-role');
+
 require('./model/director')
 require('./model/clubs/artClubs')
+
 
 
 
