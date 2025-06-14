@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 
-const districtSchema = new mongoose.Schema({
+const directorSchema = new mongoose.Schema({
     name : {
         type:String,
         require:true
@@ -23,4 +23,4 @@ const districtSchema = new mongoose.Schema({
 
 
 
-mongoose.model("DISTRICT" ,districtSchema )
+mongoose.model("DIRECTOR" ,directorSchema )

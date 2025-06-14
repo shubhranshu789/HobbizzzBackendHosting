@@ -9,7 +9,7 @@ const requireLoginUser = require("../middleWares/requireLoginUser");
 // const CABINATE = mongoose.model("CABINATE");
 const ACTIVITY = mongoose.model("ACTIVITY");
 const CABINATE = mongoose.model("CABINATE");
-const DISTRICT = mongoose.model("DISTRICT");
+const DIRECTOR = mongoose.model("DIRECTOR");
 
 
 
@@ -172,7 +172,7 @@ router.get("/event-participants-user/:eventId", requireLoginUser, async (req, re
     });
 
     // Fetch user details for registered users
-    const users = await DISTRICT.find({ _id: { $in: registrations } })
+    const users = await DIRECTOR.find({ _id: { $in: registrations } })
       .select("_id name email ip");
 
     const participants = users.map(user => ({

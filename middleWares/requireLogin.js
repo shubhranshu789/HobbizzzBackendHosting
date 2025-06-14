@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken")
 const {Jwt_secret} = require('../keys')
 const mongoose = require('mongoose')
 const CABINATE = mongoose.model("CABINATE")
-const DISTRICT = mongoose.model("DISTRICT")
+const DIRECTOR = mongoose.model("DIRECTOR")
 
 
 
@@ -17,7 +17,7 @@ module.exports = (req,res , next) => {
             return res.status(401).json({error : "you must have login2"})
         }
         const {_id} = payload
-        DISTRICT.findById(_id).then(userData=>{
+        DIRECTOR.findById(_id).then(userData=>{
             // console.log(userData)
             req.user = userData
             next()

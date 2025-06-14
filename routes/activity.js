@@ -9,36 +9,41 @@ const requireLoginUser = require("../middleWares/requireLoginUser");
 // const CABINATE = mongoose.model("CABINATE");
 const ACTIVITY = mongoose.model("ACTIVITY");
 const CABINATE = mongoose.model("CABINATE");
-const DISTRICT = mongoose.model("DISTRICT");
+const DIRECTOR = mongoose.model("DIRECTOR");
+const ARTCLUB = mongoose.model("ARTCLUB");
 
 
-
-router.post("/create-activity", requireLogin, (req, res) => {
-  const { title , desc,pic , category} = req.body;
+router.post("/create-activity", requireLogin, async (req, res) => {
+  const { title, desc, pic, category } = req.body;
 
   if (!title || !desc || !pic || !category) {
-    console.log(category, title, desc , pic);
     return res.status(422).json({ error: "Please add all the fields" });
   }
 
-  const event = new ACTIVITY({
-    title,
-    category,
-    desc,
-    pic,
-    postedBy: req.user,
-  });
-
-  event
-    .save()
-    .then((result) => {
-      return res.json({ event: result });
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).json({ error: "Failed to create the post" });
+  try {
+    const event = new ACTIVITY({
+      title,
+      category,
+      desc,
+      pic,
+      postedBy: req.user,
     });
+
+    const savedEvent = await event.save();
+
+    await ARTCLUB.findByIdAndUpdate(
+      "684a8c32d27f1ad8681187d0",
+      { $push: { activities: savedEvent._id } },
+      { new: true }
+    );
+
+    res.json({ event: savedEvent });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create the activity" });
+  }
 });
+
 
 router.get("/allActivities", requireLogin, (req, res) => {
   ACTIVITY.find().then((events) => {
@@ -172,7 +177,7 @@ router.get("/event-participants/:eventId", requireLogin, async (req, res) => {
     });
 
     // Fetch user details for registered users
-    const users = await DISTRICT.find({ _id: { $in: registrations } })
+    const users = await DIRECTOR.find({ _id: { $in: registrations } })
       .select("_id name email ip");
 
     const participants = users.map(user => ({

@@ -13,7 +13,8 @@ require('./model/user')
 require('./model/cabinate')
 require('./model/addActivity')
 require('./model/test')
-require('./model/district')
+require('./model/director')
+require('./model/clubs/artClubs')
 
 
 
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(require('./routes/auth'))
 app.use(require('./routes/activity'))
 app.use(require('./routes/user'))
+app.use(require('./routes/artclub'))
 
 
 

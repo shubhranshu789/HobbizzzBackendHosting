@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken")
 const {Jwt_secret} = require('../keys')
 const mongoose = require('mongoose')
 const CABINATE = mongoose.model("CABINATE")
-const DISTRICT = mongoose.model("DISTRICT")
+
 
 
 
