@@ -13,13 +13,12 @@ require('./model/user')
 require('./model/cabinate')
 require('./model/addActivity')
 require('./model/test')
-<<<<<<< HEAD
-require('./model/DISTRICT');
+require('./model/district');
 require('./model/apply-role');
-=======
+
 require('./model/director')
 require('./model/clubs/artClubs')
->>>>>>> 0feb76913e99939eed124d7daa62f8b2d01d351d
+
 
 
 
