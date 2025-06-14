@@ -5,7 +5,7 @@ const requireUser = require("../middleWares/requireUser");
 
 
 const DROLE = mongoose.model("DROLE");
-const District = mongoose.model("DISTRICT");
+const DISTRICT = mongoose.model("DISTRICT");
 
 // Register role application API
 router.post("/applyRole",require,(req, res) => {
@@ -35,13 +35,12 @@ router.post("/applyRole",require,(req, res) => {
 // GET /districtinfo?name=Varanasi
 router.get("/districtinfo", async (req, res) => {
   const { name } = req.query;
-
   if (!name) {
     return res.status(400).json({ error: "District name is required" });
   }
 
   try {
-    const district = await District.findOne({ name });
+    const district = await DISTRICT.findOne({ name: "Varanasi" });
 
     if (!district) {
       return res.status(404).json({ error: "District not found" });

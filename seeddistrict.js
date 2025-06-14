@@ -52,9 +52,16 @@ mongoose.connection.once("open", async () => {
     await District.insertMany(districts);
     console.log("District data inserted successfully.");
 
+
+
   } catch (error) {
     console.error("Error seeding district data:", error);
   } finally {
+
+    const districts = await District.find();
+    console.log(districts);
+
+
     mongoose.connection.close();
   }
 });
