@@ -14,24 +14,74 @@ const requireLogin = require("../middleWares/requireLogin");
 
 
 
+// router.put("/artclub/requestjoin", requireLoginUser, async (req, res) => {
+//   try {
+//     const clubId = "684a8c32d27f1ad8681187d0";
+
+//     const updatedClub = await ARTCLUB.findByIdAndUpdate(
+//       clubId,
+//       { $addToSet: { memberRequests: req.user._id } }, // avoid duplicates
+//       { new: true }
+//     );
+//     const hasRequested = updatedClub.memberRequests.includes(req.user._id.toString());
+
+//     res.json({ message: "Join request sent", club: updatedClub, hasRequested });
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: "Failed to request join" });
+//   }
+// });
+
+
+
+const CABINATE = mongoose.model("CABINATE");
+const DIRECTOR = mongoose.model("DIRECTOR");
+
 router.put("/artclub/requestjoin", requireLoginUser, async (req, res) => {
   try {
     const clubId = "684a8c32d27f1ad8681187d0";
 
+    // Step 1: Get requesting user's info (district, etc.)
+    const member = await CABINATE.findById(req.user._id);
+    if (!member) {
+      return res.status(404).json({ error: "Member not found" });
+    }
+
+    const { district } = member;
+
+    // Step 2: Find a director in that district
+    const director = await DIRECTOR.findOne({ district });
+    if (!director) {
+      return res.status(404).json({ error: `No director found in district: ${district}` });
+    }
+
+    // Step 3: Add member to the club's memberRequests
     const updatedClub = await ARTCLUB.findByIdAndUpdate(
       clubId,
-      { $addToSet: { memberRequests: req.user._id } }, // avoid duplicates
+      { $addToSet: { memberRequests: req.user._id } },
       { new: true }
     );
-    const hasRequested = updatedClub.memberRequests.includes(req.user._id.toString());
 
-    res.json({ message: "Join request sent", club: updatedClub, hasRequested });
+    const hasRequested = updatedClub.memberRequests
+      .map(id => id.toString())
+      .includes(req.user._id.toString());
+
+    // Step 4 (optional): You can also store the request somewhere under director
+    // e.g., in a `directorRequests` field (you'd have to modify schema for this)
+
+    res.json({
+      message: `Join request sent to director of ${district}`,
+      director: { name: director.name, email: director.email },
+      hasRequested,
+    });
 
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to request join" });
   }
 });
+
 
 router.put("/artclub/withdrawjoin", requireLoginUser, async (req, res) => {
   try {
@@ -95,19 +145,28 @@ router.put("/artclub/disapprove/:userId", requireLogin, async (req, res) => {
 
 
 
-router.get("/artclub/member-requests", async (req, res) => {
+router.get("/artclub/member-requests", requireLogin, async (req, res) => {
   try {
-    const club = await ARTCLUB.findOne() // optionally add filter like `{ _id: someId }`
+    const director = await DIRECTOR.findById(req.user._id);
+    if (!director) {
+      return res.status(401).json({ message: "Unauthorized: Not a director" });
+    }
+
+    const club = await ARTCLUB.findOne()
       .populate({
         path: "memberRequests",
-        select: "name email createdAt"
+        select: "name email district state createdAt", 
       });
 
     if (!club) {
       return res.status(404).json({ message: "Art club not found" });
     }
 
-    res.json(club.memberRequests);
+    const filteredRequests = club.memberRequests.filter(
+      (member) => member.district === director.district
+    );
+
+    res.json(filteredRequests);
   } catch (error) {
     console.error("Error fetching member requests:", error);
     res.status(500).json({ message: "Internal Server Error" });

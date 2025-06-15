@@ -10,6 +10,18 @@ const cabinateSchema = new mongoose.Schema({
         type: String,
         require:true
     },
+    state:{
+        type: String,
+        require:true
+    },
+    district:{
+        type: String,
+        require:true
+    },
+    school:{
+        type: String,
+        require:true
+    },
     password:{
         type: String,
         require:true

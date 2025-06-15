@@ -8,6 +8,7 @@ const artClubSchema = new mongoose.Schema(
     activities: [{ type: ObjectId, ref: "ACTIVITY" }],
     members: [{ type: ObjectId, ref: "CABINATE" }],
     memberRequests: [{ type: ObjectId, ref: "CABINATE" }], 
+    pendingRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "CABINATE" }],
   },
   { timestamps: true }
 );
