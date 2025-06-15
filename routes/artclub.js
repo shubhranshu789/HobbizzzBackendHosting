@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const ARTCLUB = mongoose.model("ARTCLUB");
 const {Jwt_secret} = require("../keys");
 const requireLoginUser = require("../middleWares/requireLoginUser");
+const requireLogin = require("../middleWares/requireLogin");
 
 
 
@@ -52,7 +53,7 @@ router.put("/artclub/withdrawjoin", requireLoginUser, async (req, res) => {
 
 
 //Director ke lie h yeee!!!!
-router.put("/artclub/approve/:userId", requireLoginUser, async (req, res) => {
+router.put("/artclub/approve/:userId", requireLogin, async (req, res) => {
   try {
     const clubId = "684a8c32d27f1ad8681187d0";
     const userId = req.params.userId;
@@ -74,27 +75,74 @@ router.put("/artclub/approve/:userId", requireLoginUser, async (req, res) => {
 });
 
 
-// router.put("/artclub/disapprove/:userId", requireLogin, async (req, res) => {
+router.put("/artclub/disapprove/:userId", requireLogin, async (req, res) => {
+  try {
+    const clubId = "684a8c32d27f1ad8681187d0";
+    const userId = req.params.userId;
+
+    const updatedClub = await ARTCLUB.findByIdAndUpdate(
+      clubId,
+      { $pull: { memberRequests: userId } },
+      { new: true }
+    );
+
+    res.json({ message: "User disapproved", club: updatedClub });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to disapprove member" });
+  }
+});
+
+
+
+router.get("/artclub/member-requests", async (req, res) => {
+  try {
+    const club = await ARTCLUB.findOne() // optionally add filter like `{ _id: someId }`
+      .populate({
+        path: "memberRequests",
+        select: "name email createdAt"
+      });
+
+    if (!club) {
+      return res.status(404).json({ message: "Art club not found" });
+    }
+
+    res.json(club.memberRequests);
+  } catch (error) {
+    console.error("Error fetching member requests:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+
+// router.get("/artclub/status",requireLogin , async (req, res) => {
 //   try {
-//     const clubId = "684a8c32d27f1ad8681187d0";
-//     const userId = req.params.userId;
+//     const club = await ARTCLUB.findOne().select("members memberRequests");
 
-//     const updatedClub = await ARTCLUB.findByIdAndUpdate(
-//       clubId,
-//       { $pull: { memberRequests: userId } },
-//       { new: true }
-//     );
+//     if (!club) return res.status(404).json({ message: "Club not found" });
 
-//     res.json({ message: "User disapproved", club: updatedClub });
+//     res.json(club);
 //   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ error: "Failed to disapprove member" });
+//     console.error("Error fetching club status:", err);
+//     res.status(500).json({ message: "Server error" });
 //   }
 // });
 
 
+router.get("/artclub/status", requireLogin, async (req, res) => {
+  try {
+    const club = await ARTCLUB.findOne()
+      .populate("members", "name email avatar") // populate selected fields
+      .select("members memberRequests");
 
+    if (!club) return res.status(404).json({ message: "Club not found" });
 
+    res.json(club);
+  } catch (err) {
+    console.error("Error fetching club status:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 
 
