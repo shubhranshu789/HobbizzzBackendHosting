@@ -86,6 +86,34 @@ router.get("/getAppliedCouncil/:headId", async (req, res) => {
 });
 
 
+// GET /getteachers?district=Kanpur
+router.get("/getteachers", async (req, res) => {
+  const { district } = req.query;
+
+  if (!district) {
+    return res.status(400).json({ error: "District name is required" });
+  }
+
+  try {
+    const teachers = await DROLE.find({
+      district: new RegExp(`^${district.trim()}$`, "i"),
+      status: "approved",
+      interest: "district head"
+    });
+
+    if (teachers.length === 0) {
+      return res.status(404).json({ message: "No approved district heads found in this district." });
+    }
+
+    res.status(200).json(teachers);
+
+  } catch (err) {
+    console.error("Error fetching teachers:", err);
+    res.status(500).json({ error: "Failed to fetch teachers", details: err });
+  }
+});
+
+
 
 // Set as Head API
 router.put("/sethead/:id", (req, res) => {
