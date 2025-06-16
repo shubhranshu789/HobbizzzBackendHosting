@@ -17,14 +17,14 @@ const {Jwt_secret} = require("../keys");
 
 
 router.post("/cabinate-signup" , (req,res)=> {
-    const {name , password ,email} = req.body;
+    const {name , password ,email , state , district , school} = req.body;
     const ip = req.headers['cf-connecting-ip'] ||
                 req.headers['x-real-ip'] ||
                 req.headers['x-forwarded-for'] ||
                 req.socket.remoteAddress || '' ;
 
 
-    if(!name ||!password ||!email){
+    if(!name ||!password ||!email || !state || !district || !school){
         return res.status(422).json({error : "Please add all the fields"})
     }
 
@@ -39,7 +39,10 @@ router.post("/cabinate-signup" , (req,res)=> {
                 name , 
                 email,    
                 password:hashedPassword, //hiding password,
-                ip
+                ip,
+                school,
+                district,
+                state
             })
         
             teacher.save()
@@ -66,9 +69,9 @@ router.post("/cabinate-signin" , (req , res) => {
             if(match){
                 // return res.status(200).json({message :"Signed In Successufully" })
                 const token = jwt.sign({_id:savedUser.id} , Jwt_secret)
-                const {_id ,name , email } = savedUser
-                res.json({token , user:{_id ,name , email  }})
-                console.log({token , user:{_id ,name , email }})
+                const {_id ,name , email , state , district , school } = savedUser
+                res.json({token , user:{_id ,name , email , state , district , school }})
+                console.log({token , user:{_id ,name , email , state , district , school}})
             }else{
                 return res.status(422).json({error :"Invalid password" })
             }
@@ -82,14 +85,14 @@ router.post("/cabinate-signin" , (req , res) => {
 
 
 router.post("/director-signup" , (req,res)=> {
-    const {name , password ,email} = req.body;
+    const {name , password ,email , state , district} = req.body;
     const ip = req.headers['cf-connecting-ip'] ||
                 req.headers['x-real-ip'] ||
                 req.headers['x-forwarded-for'] ||
                 req.socket.remoteAddress || '' ;
 
 
-    if(!name ||!password ||!email){
+    if(!name ||!password ||!email || !state || !district){
         return res.status(422).json({error : "Please add all the fields"})
     }
 
@@ -104,7 +107,9 @@ router.post("/director-signup" , (req,res)=> {
                 name , 
                 email,    
                 password:hashedPassword, //hiding password,
-                ip
+                ip,
+                state , 
+                district
             })
         
             teacher.save()
@@ -130,9 +135,9 @@ router.post("/director-signin" , (req , res) => {
             if(match){
                 // return res.status(200).json({message :"Signed In Successufully" })
                 const token = jwt.sign({_id:savedUser.id} , Jwt_secret)
-                const {_id ,name , email } = savedUser
-                res.json({token , user:{_id ,name , email  }})
-                console.log({token , user:{_id ,name , email }})
+                const {_id ,name , email , state , district } = savedUser
+                res.json({token , user:{_id ,name , email,  state , district  }})
+                console.log({token , user:{_id ,name , email ,  state , district }})
             }else{
                 return res.status(422).json({error :"Invalid password" })
             }
