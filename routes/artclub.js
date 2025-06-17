@@ -204,7 +204,7 @@ router.get("/artclub/status", requireLogin, async (req, res) => {
 });
 
 // GET /artClub/info?district=Varanasi
-router.get("/info", async (req, res) => {
+router.get("/artclub/info", async (req, res) => {
   const { district } = req.query;
 
   if (!district) {
@@ -220,10 +220,10 @@ router.get("/info", async (req, res) => {
 
     const response = {
       district: club.district,
-      totalMembers: club.members.length,
-      totalActivities: club.activities.length,
-      pendingRequests: club.pendingRequests.length,
-      memberRequests: club.memberRequests.length
+      totalMembers: club.members,
+      totalActivities: club.activities,
+      pendingRequests: club.pendingRequests,
+      memberRequests: club.memberRequests
     };
 
     return res.status(200).json(response);

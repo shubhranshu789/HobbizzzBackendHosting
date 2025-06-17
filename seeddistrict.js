@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
-require("./model/district"); // adjust path if needed
+require("./model/clubs/artClubs"); // adjust path if needed
 
-const District = mongoose.model("DISTRICT"); // ensure this matches your model name
+const ArtClub = mongoose.model("ARTCLUB"); // ensure this matches your model name
 // connect to your MongoDB
 
 const {mongoURl}  = require('./keys');
@@ -15,41 +15,35 @@ mongoose.connection.once("open", async () => {
     // Sample district data
     const districts = [
       {
-        name: "Varanasi",
-        total_members: 100,
-        Max_members: 120,
-        chapters: 0,
-        students: 70,
-        teachers: 25,
+        district: "Varanasi",
+        
       },
       {
-        name: "Lucknow",
-        total_members: 100,
-        Max_members: 120,
-        chapters: 0,
-        students: 70,
-        teachers: 25,
+        district: "Kanpur",
+        
       },
       {
-        name: "Prayagraj",
-        total_members: 100,
-        Max_members: 120,
-        chapters: 0,
-        students: 70,
-        teachers: 25,
+        district: "Noida",
+        
       },
       {
-        name: "Kanpur",
-        total_members: 100,
-        Max_members: 120,
-        chapters: 0,
-        students: 70,
-        teachers: 25,
+        district: "Agra",
+        
       },
+      {
+        district: "Ghaziabad",
+        
+      },
+      {
+        district: "Prayagraj",
+        
+      },
+
+      
     ];
 
     // Insert sample data
-    await District.insertMany(districts);
+    await ArtClub.insertMany(districts);
     console.log("District data inserted successfully.");
 
 
@@ -58,8 +52,8 @@ mongoose.connection.once("open", async () => {
     console.error("Error seeding district data:", error);
   } finally {
 
-    const districts = await District.find();
-    console.log(districts);
+    const info = await ArtClub.find();
+    console.log(info);
 
 
     mongoose.connection.close();
