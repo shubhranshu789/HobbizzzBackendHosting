@@ -5,6 +5,7 @@ const { ObjectId } = mongoose.Schema.Types;
 
 const artClubSchema = new mongoose.Schema(
   {
+    district: { type: String, required: true },
     activities: [{ type: ObjectId, ref: "ACTIVITY" }],
     members: [{ type: ObjectId, ref: "CABINATE" }],
     memberRequests: [{ type: ObjectId, ref: "CABINATE" }], 

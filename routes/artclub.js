@@ -203,7 +203,36 @@ router.get("/artclub/status", requireLogin, async (req, res) => {
   }
 });
 
+// GET /artClub/info?district=Varanasi
+router.get("/info", async (req, res) => {
+  const { district } = req.query;
 
+  if (!district) {
+    return res.status(400).json({ error: "District parameter is required" });
+  }
+
+  try {
+    const club = await ARTCLUB.findOne({ district });
+
+    if (!club) {
+      return res.status(404).json({ error: "Art club not found for this district" });
+    }
+
+    const response = {
+      district: club.district,
+      totalMembers: club.members.length,
+      totalActivities: club.activities.length,
+      pendingRequests: club.pendingRequests.length,
+      memberRequests: club.memberRequests.length
+    };
+
+    return res.status(200).json(response);
+
+  } catch (error) {
+    console.error("Error fetching art club info:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
 
