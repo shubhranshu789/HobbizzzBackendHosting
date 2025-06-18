@@ -234,6 +234,79 @@ router.get("/artclub/info", async (req, res) => {
   }
 });
 
+// GET /artclub/getteachers?district=Varanasi
+router.get("/artclub/getteachers", async (req, res) => {
+  const { district } = req.query;
+
+  if (!district) {
+    return res.status(400).json({ error: "District parameter is required" });
+  }
+
+  try {
+    const club = await ARTCLUB.findOne({ district }).populate("members", "name email avatar school");
+
+    if (!club) {
+      return res.status(404).json({ error: "Art club not found for this district" });
+    }
+
+    const members = club.members.map(member => ({
+      id: member._id,
+      name: member.name,
+      email: member.email,
+      avatar: member.avatar,
+      school: member.school
+    }));
+
+    return res.status(200).json(members);
+
+  } catch (error) {
+    console.error("Error fetching art club members:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Set head for a club
+router.put("/artclub/sethead", async (req, res) => {
+  const { district, id } = req.query;
+
+  if (!district || !id) {
+    return res.status(400).json({ error: "Both 'district' and 'id' are required" });
+  }
+
+  try {
+    // Find the club for given district
+    const club = await ARTCLUB.findOne({ district });
+
+    if (!club) {
+      return res.status(404).json({ error: "Art club not found for this district" });
+    }
+
+    // Check if the given id exists in the members array
+    const isMember = club.members.some(memberId => memberId.toString() === id);
+
+    if (!isMember) {
+      return res.status(400).json({ error: "This member is not part of the art club members list" });
+    }
+
+    // Update the head with the given id
+    club.head = id;
+    await club.save();
+
+    // Optionally populate head details before sending response
+    const populatedClub = await ARTCLUB.findById(club._id).populate("head", "name email school avatar");
+
+    res.status(200).json({
+      message: "Head successfully assigned",
+      head: populatedClub.head
+    });
+
+  } catch (error) {
+    console.error("Error setting art club head:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 
 
 
