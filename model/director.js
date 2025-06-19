@@ -22,6 +22,10 @@ const directorSchema = new mongoose.Schema({
         type: String,
         require:true
     },
+    clubName: {
+        type: String,
+        required: true
+    },
     //add IP
     ip:{
         type: String,

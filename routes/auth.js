@@ -9,6 +9,7 @@ const jwt = require("jsonwebtoken")
 const USER = mongoose.model("USER");
 const CABINATE = mongoose.model("CABINATE");
 const DIRECTOR = mongoose.model("DIRECTOR");
+const ARTCLUB = mongoose.model("ARTCLUB");
 const {Jwt_secret} = require("../keys");
 
 
@@ -84,40 +85,58 @@ router.post("/cabinate-signin" , (req , res) => {
 
 
 
-router.post("/director-signup" , (req,res)=> {
-    const {name , password ,email , state , district} = req.body;
-    const ip = req.headers['cf-connecting-ip'] ||
-                req.headers['x-real-ip'] ||
-                req.headers['x-forwarded-for'] ||
-                req.socket.remoteAddress || '' ;
+router.post("/director-signup", async (req, res) => {
+  const { name, password, email, state, district, clubName } = req.body;
 
+  const ip =
+    req.headers["cf-connecting-ip"] ||
+    req.headers["x-real-ip"] ||
+    req.headers["x-forwarded-for"] ||
+    req.socket.remoteAddress ||
+    "";
 
-    if(!name ||!password ||!email || !state || !district){
-        return res.status(422).json({error : "Please add all the fields"})
+  if (!name || !password || !email || !state || !district || !clubName) {
+    return res.status(422).json({ error: "Please add all the fields" });
+  }
+
+  try {
+    const savedUser = await DIRECTOR.findOne({
+      $or: [{ email: email }, { clubName: clubName }]
+    });
+
+    if (savedUser) {
+      return res
+        .status(422)
+        .json({ error: "User already exists with that email or club name" });
     }
 
-    DIRECTOR.findOne({$or : [{email : email} ]}).then((savedUser) => {
-        if(savedUser){
-            return res.status(422).json({error : "user already exist with that email or userName"})
-        }
+    const hashedPassword = await bcryptjs.hash(password, 12);
 
+    const director = new DIRECTOR({
+      name,
+      email,
+      password: hashedPassword,
+      ip,
+      state,
+      district,
+      clubName: clubName.toUpperCase()
+    });
 
-        bcryptjs.hash(password , 12).then((hashedPassword) => {
-            const teacher = new DIRECTOR ({
-                name , 
-                email,    
-                password:hashedPassword, //hiding password,
-                ip,
-                state , 
-                district
-            })
-        
-            teacher.save()
-            .then(teacher => {res.json({message : "Data Saved"})})
-            .catch(err => {console.log(err)})
-        })
-    })
-})
+    const savedDirector = await director.save();
+
+    if (clubName.toUpperCase() === "ART") {
+      const artClubId = "684a8c32d27f1ad8681187d0";
+      await ARTCLUB.findByIdAndUpdate(artClubId, {
+        $push: { director: savedDirector._id }
+      });
+    }
+
+    res.json({ message: "Director registered successfully" });
+  } catch (err) {
+    console.error("Signup error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 
 router.post("/director-signin" , (req , res) => {
@@ -135,9 +154,9 @@ router.post("/director-signin" , (req , res) => {
             if(match){
                 // return res.status(200).json({message :"Signed In Successufully" })
                 const token = jwt.sign({_id:savedUser.id} , Jwt_secret)
-                const {_id ,name , email , state , district } = savedUser
-                res.json({token , user:{_id ,name , email,  state , district  }})
-                console.log({token , user:{_id ,name , email ,  state , district }})
+                const {_id ,name , email , state , district , clubName } = savedUser
+                res.json({token , user:{_id ,name , email,  state , district , clubName  }})
+                console.log({token , user:{_id ,name , email ,  state , district , clubName}})
             }else{
                 return res.status(422).json({error :"Invalid password" })
             }

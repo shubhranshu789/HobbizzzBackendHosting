@@ -9,8 +9,13 @@ const artClubSchema = new mongoose.Schema(
     members: [{ type: ObjectId, ref: "CABINATE" }],
     memberRequests: [{ type: ObjectId, ref: "CABINATE" }], 
     pendingRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "CABINATE" }],
+    director: { type: ObjectId, ref: "DIRECTOR", required: false },
+
+
+    council: [{ type: ObjectId, ref: "CABINATE" }],
+    councilRequests: [{ type: ObjectId, ref: "CABINATE" }], 
   },
-  { timestamps: true }
+  { timestamps : true }
 );
 
 module.exports = mongoose.model("ARTCLUB", artClubSchema);
