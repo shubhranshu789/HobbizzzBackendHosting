@@ -156,16 +156,19 @@ router.put("/artclub/approve/:userId", requireLogin, async (req, res) => {
       return res.status(400).json({ message: "Invalid user ID" });
     }
 
+    // Find user and get district
     const user = await CABINATE.findById(userId).select("district");
     if (!user) return res.status(404).json({ message: "User not found" });
 
     console.log("User found, district:", user.district);
 
+    // Check for duplicate approved member for the same district
     const duplicate = await APPROVEDMEMBER.findOne({ club: clubId, district: user.district });
     if (duplicate) {
       return res.status(400).json({ message: `Head is already approved for this District ${user.district}` });
     }
 
+    // Update club: pull request & add member
     const updatedClub = await ARTCLUB.findByIdAndUpdate(
       clubId,
       {
@@ -177,14 +180,20 @@ router.put("/artclub/approve/:userId", requireLogin, async (req, res) => {
 
     console.log("Club updated:", updatedClub._id);
 
+    // Create entry in APPROVEDMEMBER
     await APPROVEDMEMBER.create({ user: userId, club: clubId, district: user.district });
 
-    res.json({ message: "User approved", club: updatedClub });
+    // Update user's club field in CABINATE to 'artclub'
+    await CABINATE.findByIdAndUpdate(userId, { club: "artclub" });
+
+    res.json({ message: "User approved and club assigned", club: updatedClub });
+
   } catch (err) {
     console.error("APPROVAL ERROR >>>>", err.stack || err);
     res.status(500).json({ error: "Failed to approve member", detail: err.message });
   }
 });
+
 
 
 router.put("/artclub/disapprove/:userId", requireLogin, async (req, res) => {
