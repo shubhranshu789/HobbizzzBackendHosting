@@ -69,9 +69,9 @@ router.post("/cabinate-signin" , (req , res) => {
             if(match){
                 // return res.status(200).json({message :"Signed In Successufully" })
                 const token = jwt.sign({_id:savedUser.id} , Jwt_secret)
-                const {_id ,name , email , state , district , school } = savedUser
-                res.json({token , user:{_id ,name , email , state , district , school }})
-                console.log({token , user:{_id ,name , email , state , district , school}})
+                const {_id ,name , email , state , district , club , school } = savedUser
+                res.json({token , user:{_id ,name , email , state , district , club , school }})
+                console.log({token , user:{_id ,name , email , state , district , club , school}})
             }else{
                 return res.status(422).json({error :"Invalid password" })
             }

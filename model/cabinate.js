@@ -18,6 +18,10 @@ const cabinateSchema = new mongoose.Schema({
         type: String,
         require:true
     },
+    club:{
+        type: String,
+        default: null
+    },
     school:{
         type: String,
         require:true
