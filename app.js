@@ -18,6 +18,7 @@ require('./model/apply-role');
 
 require('./model/director')
 require('./model/clubs/artClubs')
+require('./model/clubs/approvedMember')
 
 
 
