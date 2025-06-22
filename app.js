@@ -13,9 +13,7 @@ require('./model/user')
 require('./model/cabinate')
 require('./model/addActivity')
 require('./model/test')
-require('./model/district');
-require('./model/apply-role');
-
+require('./model/chapters')
 require('./model/director')
 require('./model/clubs/artClubs')
 require('./model/clubs/approvedMember')
@@ -28,9 +26,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(require('./routes/auth'))
 app.use(require('./routes/activity'))
-
-app.use(require('./routes/role'))
-
+app.use(require('./routes/chapter'))
 app.use(require('./routes/user'))
 app.use(require('./routes/artclub'))
 
