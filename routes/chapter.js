@@ -6,11 +6,63 @@ const requireLoginUser = require("../middleWares/requireLoginUser");
 
 const DIRECTOR = mongoose.model("DIRECTOR");
 const CHAPTER = mongoose.model("CHAPTER");
-const artClub = mongoose.model("ARTCLUB");
+const ARTCLUB = mongoose.model("ARTCLUB");
+
+
+// GET /get-chapter?club=artclub&district=Varanasi
+router.get("/get-chapter", async (req, res) => {
+  try {
+    const { club, district } = req.query;
+
+    const query = {};
+    if (club) query.club = club;
+    if (district) query.district = district;
+
+    const chapters = await CHAPTER.find(query)
+      .populate("director", "name email")
+      .populate("head", "name email")
+      .populate("council_members", "name position email phone")
+      .sort({ createdAt: -1 }); // newest first
+
+    const formattedChapters = chapters.map((chapter) => ({
+      chapter_id: chapter._id,
+      title: chapter.title,
+      date: chapter.date,
+      venue: chapter.venue,
+      description: chapter.description || "",
+      status: chapter.status,
+      created_at: chapter.createdAt,
+      updated_at: chapter.updatedAt,
+      club_name: chapter.club,
+      club_director_name: chapter.director ? chapter.director.name : "N/A",
+      club_director_email: chapter.director ? chapter.director.email : "N/A",
+      district_name: chapter.district,
+      district_head_name: chapter.head ? chapter.head.name : "N/A",
+      district_head_email: chapter.head ? chapter.head.email : "N/A",
+      council_members: chapter.council_members.map((member) => ({
+        name: member.name,
+        position: member.position,
+        email: member.email,
+        phone: member.phone || "",
+      })),
+    }));
+
+    res.status(200).json({ chapters: formattedChapters });
+  } catch (error) {
+    console.error("Error fetching chapters:", error);
+    res.status(500).json({ message: "Failed to fetch chapters", error: error.message });
+  }
+});
+
 
 
 
 router.post("/create-chapter", requireLoginUser, async (req, res) => {
+  const clubModels = {
+    "artclub": ARTCLUB
+  };
+
+
   try {
     const { title, description, date, venue, club, district, status } = req.body;
 
@@ -25,10 +77,17 @@ router.post("/create-chapter", requireLoginUser, async (req, res) => {
       return res.status(404).json({ message: `Director not found for club: ${club}` });
     }
 
+    // Select club model dynamically
+    const ClubModel = clubModels[club];
+
+    if (!ClubModel) {
+      return res.status(400).json({ message: `Invalid club type: ${club}` });
+    } 
+
     // Fetch Art Club for given district and club
-    const artClub = await club.findOne({ district });
+    const artClub = await ClubModel.findOne({ district });
     if (!artClub) {
-      return res.status(404).json({ message: `Art club not found for district: ${district}` });
+      return res.status(403).json({ message: `Art club not found for district: ${district}` });
     }
 
     const head = artClub.head;
@@ -57,5 +116,7 @@ router.post("/create-chapter", requireLoginUser, async (req, res) => {
     res.status(500).json({ message: "Failed to create chapter", error: error.message });
   }
 });
+
+
 
 module.exports = router;
