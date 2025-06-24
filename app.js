@@ -18,6 +18,7 @@ require('./model/director')
 require('./model/clubs/artClubs')
 require('./model/school')
 require('./model/clubs/approvedMember')
+require('./model/addCompitition')
 
 
 
@@ -30,6 +31,7 @@ app.use(require('./routes/activity'))
 app.use(require('./routes/chapter'))
 app.use(require('./routes/user'))
 app.use(require('./routes/artclub'))
+app.use(require('./routes/compitition'))
 
 
 
