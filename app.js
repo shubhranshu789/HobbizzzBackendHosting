@@ -19,6 +19,7 @@ require('./model/apply-role');
 require('./model/director')
 require('./model/clubs/artClubs')
 require('./model/clubs/approvedMember')
+require('./model/addCompitition')
 
 
 
@@ -33,6 +34,7 @@ app.use(require('./routes/role'))
 
 app.use(require('./routes/user'))
 app.use(require('./routes/artclub'))
+app.use(require('./routes/compitition'))
 
 
 
