@@ -11,7 +11,7 @@ const chapterSchema = new mongoose.Schema(
     district: { type: String, required: true },
     head: { type: ObjectId, ref: "CABINATE", required: false },
     director: { type: ObjectId, ref: "DIRECTOR", required: false },
-    council_members: [{ type: ObjectId, ref: "CABINATE" }],
+    
     status: {
       type: String,
       enum: ["Inactive", "Active"],
@@ -21,4 +21,4 @@ const chapterSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("CHAPTER", chapterSchema);
+module.exports = mongoose.model("LOCALEVENT", chapterSchema);

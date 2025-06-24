@@ -11,6 +11,8 @@ const requireLoginUser = require("../middleWares/requireLoginUser");
 const requireLogin = require("../middleWares/requireLogin");
 const CABINATE = mongoose.model("CABINATE");
 const DIRECTOR = mongoose.model("DIRECTOR");
+const SCHOOL = mongoose.model("SCHOOL");
+const USER = mongoose.model("USER");
 const APPROVEDMEMBER = mongoose.model("APPROVEDMEMBER");
 
 
@@ -56,7 +58,7 @@ router.put("/artclub/requestjoin", requireLoginUser, async (req, res) => {
 
 
 
-router.put("/artclub/requestjoinforcouncil", requireLoginUser, async (req, res) => {
+router.put("/artclub/requestjoinforambassador", requireLoginUser, async (req, res) => {
   try {
     const { district } = req.query;
     if (!district) {
@@ -71,10 +73,10 @@ router.put("/artclub/requestjoinforcouncil", requireLoginUser, async (req, res) 
 
     const updatedClub = await ARTCLUB.findByIdAndUpdate(
       club._id,
-      { $addToSet: { councilRequests: req.user._id } }, // avoid duplicates
+      { $addToSet: { ambassadorRequests: req.user._id } }, // avoid duplicates
       { new: true }
     );
-    const hasRequested = updatedClub.councilRequests.includes(req.user._id.toString());
+    const hasRequested = updatedClub.ambassadorRequests.includes(req.user._id.toString());
 
     res.json({ message: "Join request sent", club: updatedClub, hasRequested });
 
@@ -264,7 +266,7 @@ router.get("/artclub/head-request", async (req, res) => {
   try {
      const club = await ARTCLUB.findOne({ district }).populate({
       path: "memberRequests",
-      select: "name email district state createdAt"
+      select: "name email district school state createdAt"
     });
 
     if (!club) {
@@ -378,9 +380,9 @@ router.get("/artclub/gethead", async (req, res) => {
 
 //=========================================================================================================
 //=========================================================================================================
-// for council==================================================================================================
+// for ambassadors==================================================================================================
 
-router.get("/artclub/council-requests", requireLoginUser, async (req, res) => {
+router.get("/artclub/ambassador-requests", requireLoginUser, async (req, res) => {
   const { district } = req.query;
 
   if (!district) {
@@ -388,21 +390,21 @@ router.get("/artclub/council-requests", requireLoginUser, async (req, res) => {
   }
 
   try {
-    const club = await ARTCLUB.findOne({ district }).populate({path: "councilRequests",select: "name email district state school createdAt"
+    const club = await ARTCLUB.findOne({ district }).populate({path: "ambassadorRequests",select: "name email district state school createdAt"
     });
 
     if (!club) {
       return res.status(404).json({ message: "Art club not found for this district" });
     }
 
-    res.status(200).json(club.councilRequests);
+    res.status(200).json(club.ambassadorRequests);
   } catch (error) {
-    console.error("Error fetching council member requests:", error);
+    console.error("Error fetching ambassador member requests:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
-router.put("/artclub/approve-council", requireLogin, async (req, res) => {
+router.put("/artclub/approve-ambassador", requireLoginUser, async (req, res) => {
   try {
     const userId = req.query.userid;
     const district = req.query.district;
@@ -411,12 +413,37 @@ router.put("/artclub/approve-council", requireLogin, async (req, res) => {
       return res.status(400).json({ message: "User ID and District are required" });
     }
 
-    // Find club by district and update councilRequests and council
+     // Find the user by ID to get school name
+    const user = await CABINATE.findById(userId);
+
+    const schoolName = user.school;
+
+    // Check if SCHOOL entry already exists for this school in the given district and club
+    const existingSchool = await SCHOOL.findOne({
+      school: schoolName,
+      district: district,
+      club: 'artclub'
+    });
+
+    if (existingSchool) {
+      return res.status(400).json({ message: "Ambassador already exists for this school in Artclub" });
+    }
+
+    // Create new SCHOOL entry
+    const newSchool = await SCHOOL.create({
+      school: schoolName,
+      district: district,
+      club: 'artclub',
+      ambassador: userId,
+      captain: null
+    });
+
+    // Find club by district and update ambassadorRequests and council
     const updatedClub = await ARTCLUB.findOneAndUpdate(
       { district: district },
       {
-        $pull: { councilRequests: userId },
-        $addToSet: { council: userId } 
+        $pull: { ambassadorRequests: userId },
+        $addToSet: { ambassadors: userId } 
       },
       { new: true }
     );
@@ -436,16 +463,16 @@ router.put("/artclub/approve-council", requireLogin, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.json({ message: "Council request approved successfully", club: updatedClub });
+    res.json({ message: "ambassador request approved successfully", club: updatedClub });
   } catch (err) {
-    console.error("Error approving council request:", err);
-    res.status(500).json({ error: "Failed to approve council request" });
+    console.error("Error approving ambassador request:", err);
+    res.status(500).json({ error: "Failed to approve ambassador request" });
   }
 });
 
 
 
-router.put("/artclub/disapprove-council", requireLogin, async (req, res) => {
+router.put("/artclub/disapprove-ambassador", requireLogin, async (req, res) => {
   try {
     const userId = req.query.userid;
     const district = req.query.district;
@@ -458,7 +485,7 @@ router.put("/artclub/disapprove-council", requireLogin, async (req, res) => {
 
     const updatedClub = await ARTCLUB.findOneAndUpdate(
       { district: district },
-      { $pull: { councilRequests: userId } },
+      { $pull: { ambassadorRequests: userId } },
       { new: true }
     );
 
@@ -470,11 +497,11 @@ router.put("/artclub/disapprove-council", requireLogin, async (req, res) => {
 });
 
 
-router.get("/artclub/statusCouncil", requireLoginUser, async (req, res) => {
+router.get("/artclub/statusambassador", requireLoginUser, async (req, res) => {
   try {
     const club = await ARTCLUB.findOne()
-      .populate("council", "name email avatar") // populate selected fields
-      .select("council councilRequests");
+      .populate("ambassadors", "name email avatar") // populate selected fields
+      .select("ambassadors ambassadorRequests");
 
     if (!club) return res.status(404).json({ message: "Club not found" });
 
@@ -487,7 +514,7 @@ router.get("/artclub/statusCouncil", requireLoginUser, async (req, res) => {
 
 //=========================================================================================================
 //=========================================================================================================
-// end council==================================================================================================
+// end ambassador==================================================================================================
 
 
 
@@ -525,13 +552,20 @@ router.get("/artclub/info", async (req, res) => {
     if (!club) {
       return res.status(404).json({ error: "Art club not found for this district" });
     }
+    // Fetch schools for this district and artclub
+    const schools = await SCHOOL.find({ district, club: 'artclub' });
 
+    // Fetch students for this district and artclub
+    const students = await USER.find({ district, club: 'artclub' });
+
+
+    // Prepare response object
     const response = {
       district: club.district,
-      totalMembers: club.members,
+      totalSchools: schools,
       totalActivities: club.activities,
-      pendingRequests: club.pendingRequests,
-      memberRequests: club.memberRequests
+      totalStudents: students,
+      headRequests: club.memberRequests
     };
 
     return res.status(200).json(response);

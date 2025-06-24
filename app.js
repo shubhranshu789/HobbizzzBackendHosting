@@ -13,9 +13,10 @@ require('./model/user')
 require('./model/cabinate')
 require('./model/addActivity')
 require('./model/test')
-require('./model/chapters')
+require('./model/localEvent')
 require('./model/director')
 require('./model/clubs/artClubs')
+require('./model/school')
 require('./model/clubs/approvedMember')
 
 

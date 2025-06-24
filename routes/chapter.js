@@ -5,12 +5,12 @@ const router = express.Router();
 const requireLoginUser = require("../middleWares/requireLoginUser");
 
 const DIRECTOR = mongoose.model("DIRECTOR");
-const CHAPTER = mongoose.model("CHAPTER");
+const LOCALEVENT= mongoose.model("LOCALEVENT");
 const ARTCLUB = mongoose.model("ARTCLUB");
 
 
 // GET /get-chapter?club=artclub&district=Varanasi
-router.get("/get-chapter", async (req, res) => {
+router.get("/get-events", async (req, res) => {
   try {
     const { club, district } = req.query;
 
@@ -18,14 +18,14 @@ router.get("/get-chapter", async (req, res) => {
     if (club) query.club = club;
     if (district) query.district = district;
 
-    const chapters = await CHAPTER.find(query)
+    const events = await LOCALEVENT.find(query)
       .populate("director", "name email")
       .populate("head", "name email")
       .populate("council_members", "name position email phone")
       .sort({ createdAt: -1 }); // newest first
 
-    const formattedChapters = chapters.map((chapter) => ({
-      chapter_id: chapter._id,
+    const formattedEvents = events.map((chapter) => ({
+      event_id: chapter._id,
       title: chapter.title,
       date: chapter.date,
       venue: chapter.venue,
@@ -39,18 +39,13 @@ router.get("/get-chapter", async (req, res) => {
       district_name: chapter.district,
       district_head_name: chapter.head ? chapter.head.name : "N/A",
       district_head_email: chapter.head ? chapter.head.email : "N/A",
-      council_members: chapter.council_members.map((member) => ({
-        name: member.name,
-        position: member.position,
-        email: member.email,
-        phone: member.phone || "",
-      })),
+  
     }));
 
-    res.status(200).json({ chapters: formattedChapters });
+    res.status(200).json({ events: formattedEvents });
   } catch (error) {
     console.error("Error fetching chapters:", error);
-    res.status(500).json({ message: "Failed to fetch chapters", error: error.message });
+    res.status(500).json({ message: "Failed to fetch events", error: error.message });
   }
 });
 
