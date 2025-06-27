@@ -247,7 +247,7 @@ router.put("/activity/approve-upload/:activityId/:uploadId", async (req, res) =>
     const activity = await ACTIVITY.findOneAndUpdate(
       {
         _id: activityId,
-        "uploads._id": uploadId
+        "uploads._id" : uploadId
       },
       {
         $set: { "uploads.$.isApproved": true }
@@ -328,6 +328,106 @@ router.get("/activity/approved-uploads/:eventId", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+
+
+
+
+
+
+
+
+
+router.put("/activity/approve-halloffame/:activityId/:uploadId", async (req, res) => {
+  const { activityId, uploadId } = req.params;
+
+  try {
+    const activity = await ACTIVITY.findOneAndUpdate(
+      {
+        _id: activityId,
+        "uploads._id" : uploadId
+      },
+      {
+        $set: { "uploads.$.isHallofFame": true }
+      },
+      { new: true }
+    );
+
+    if (!activity) {
+      return res.status(404).json({ error: "Activity or upload not found" });
+    }
+
+    res.status(200).json({ message: "Upload approved successfully", activity });
+  } catch (error) {
+    console.error("Approval error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+router.put("/activity/disapprove-halloffame/:activityId/:uploadId", async (req, res) => {
+  const { activityId, uploadId } = req.params;
+
+  try {
+    const activity = await ACTIVITY.findOneAndUpdate(
+      { _id: activityId, "uploads._id": uploadId },
+      { $set: { "uploads.$.isHallofFame": false } },
+      { new: true }
+    );
+
+    if (!activity) {
+      return res.status(404).json({ error: "Activity or upload not found" });
+    }
+
+    res.status(200).json({ message: "Upload disapproved successfully", activity });
+  } catch (error) {
+    console.error("Disapproval error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+
+router.get("/activity/hallOfFamePosts/:eventId", async (req, res) => {
+  try {
+    const { eventId } = req.params;
+
+    // Step 1: Get the activity
+    const activity = await ACTIVITY.findById(eventId);
+    if (!activity) return res.status(404).json({ error: "Activity not found" });
+
+    // Step 2: Filter approved uploads
+    const approvedUploads = activity.uploads.filter(upload => upload.isHallofFame);
+
+    // Step 3: Fetch user details for those uploads
+    const userIds = approvedUploads.map(u => u.uploadedBy);
+    const users = await USER.find({ _id: { $in: userIds } }).select("_id name email");
+
+    // Step 4: Map user info into uploads
+    const userMap = new Map();
+    users.forEach(user => userMap.set(user._id.toString(), user));
+
+    const enrichedUploads = approvedUploads.map(upload => {
+      const user = userMap.get(upload.uploadedBy?.toString());
+
+      return {
+        _id: upload._id,
+        pic: upload.pic,
+        name: user?.name || "Unknown",
+        email: user?.email || "N/A",
+        uploadedBy: user?._id || null,
+        createdAt: upload.createdAt,
+        isHallofFame: upload.isHallofFame
+      };
+    });
+
+    res.status(200).json({ approvedUploads: enrichedUploads });
+  } catch (error) {
+    console.error("Error fetching approved uploads:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 
 
 

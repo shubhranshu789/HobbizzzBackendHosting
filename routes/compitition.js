@@ -5,6 +5,7 @@ const multer = require("multer");
 const axios = require("axios");
 const requireLogin = require("../middleWares/requireLogin");
 const requireLoginUser = require("../middleWares/requireLoginUser");
+const requireLoginPrinciple = require("../middleWares/requireLoginPrinciple");
 
 // const CABINATE = mongoose.model("CABINATE");
 const ACTIVITY = mongoose.model("ACTIVITY");
@@ -13,12 +14,13 @@ const DIRECTOR = mongoose.model("DIRECTOR");
 const ARTCLUB = mongoose.model("ARTCLUB");
 const COMPITITION = mongoose.model("COMPITITION");
 const USER = mongoose.model("USER");
+const JUDGE = mongoose.model("JUDGE");
 
 
 
 
 
-router.post("/create-compitition", requireLogin, async (req, res) => {
+router.post("/create-compitition", requireLoginPrinciple, async (req, res) => {
   const { title, desc, pic } = req.body;
 
   if (!title || !desc || !pic ) {
@@ -50,20 +52,51 @@ router.post("/create-compitition", requireLogin, async (req, res) => {
 
 
 
-router.get("/allCompitition", requireLogin, (req, res) => {
+router.get("/allCompitition", (req, res) => {
   COMPITITION.find().then((events) => {
     res.json(events);
   });
 });
 
 
-router.get("/getCompitition/:compititionid", (req, res) => {
-  COMPITITION.findOne({ _id: req.params.compititionid })
-    .then(activity => {
-      // console.log(activity)
-      return res.json(activity)
-    })
-})
+
+
+router.get("/getCompitition/:compititionid", async (req, res) => {
+  try {
+    const competition = await COMPITITION.findOne({ _id: req.params.compititionid })
+  .populate("uploads.uploadedBy", "name email")
+
+    if (!competition) {
+      return res.status(404).json({ error: "Competition not found" });
+    }
+
+    res.json(competition);
+  } catch (err) {
+    console.error("Error fetching competition:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+
+router.delete("/competition/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedEvent = await COMPITITION.findByIdAndDelete(id);
+
+    if (!deletedEvent) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    return res.status(200).json({
+      message: "Event deleted successfully",
+      deletedEvent,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error", details: error.message });
+  }
+});
 
 
 
@@ -236,15 +269,163 @@ router.get("/event-participants-compi/:eventId", requireLoginUser, async (req, r
 
 
 
+// -------------------------------------------Priciple-----------------------------------------------------------------------
+
+router.get("/allJudges", async (req, res) => {
+  try {
+    const judges = await JUDGE.find();
+    return res.status(200).json(judges);
+  } catch (error) {
+    console.error("Error fetching judges:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+
+router.post("/assignJudge", async (req, res) => {
+  const { id, judgeId } = req.body;
+
+  if (!id || !judgeId) {
+    return res.status(400).json({ error: "competitionId and judgeId are required" });
+  }
+
+  try {
+    const updated = await COMPITITION.findByIdAndUpdate(
+      id,
+      { $addToSet: { judges: judgeId } },
+      { new: true }
+    ).populate("judges", "name clubName");
+
+    res.status(200).json({
+      message: "Judge assigned successfully",
+      competition: updated,
+    });
+  } catch (err) {
+    console.error("Error assigning judge:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/competition/:id/judges", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const competition = await COMPITITION.findById(id).populate("judges", "name email clubName");
+
+    if (!competition) {
+      return res.status(404).json({ error: "Competition not found" });
+    }
+
+    // Return only the judge data
+    return res.status(200).json({ judges: competition.judges });
+  } catch (err) {
+    console.error("Error fetching judges:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+
+router.post("/removeJudge", async (req, res) => {
+  const { id, judgeId } = req.body;
+
+  if (!id || !judgeId) {
+    return res.status(400).json({ error: "competitionId and judgeId are required" });
+  }
+
+  try {
+    const updatedCompetition = await COMPITITION.findByIdAndUpdate(
+      id,
+      { $pull: { judges: judgeId } },
+      { new: true }
+    ).populate("judges", "name email clubName");
+
+    if (!updatedCompetition) {
+      return res.status(404).json({ error: "Competition not found" });
+    }
+
+    res.status(200).json({
+      message: "Judge removed successfully",
+      competition: updatedCompetition,
+    });
+  } catch (err) {
+    console.error("Error removing judge:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// ------------------------------------------------------------------------------------------------------------------
+
+
+
+
+// -------------------------------------------------JUDGE-----------------------------------------------------------------
+
+router.get("/competitions/judge/:judgeId", async (req, res) => {
+  const { judgeId } = req.params;
+
+  try {
+    const competitions = await COMPITITION.find({
+      isLive: true,
+      judges: judgeId, // match if judgeId is in the array
+    })
+    .populate("judges", "name email clubName") // optional
+    .select("title desc pic isLive judges");     // optional, limits the fields returned
+
+    res.status(200).json({ competitions });
+  } catch (error) {
+    console.error("Error fetching competitions:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
 
 
 
+router.patch("/assign-mark", async (req, res) => {
+  const { uploadId, judgeId, mark } = req.body;
 
+  if (!uploadId || !judgeId || typeof mark !== "number") {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
 
+  // Map judgeId to judge field name
+  let fieldToUpdate;
+  switch (judgeId) {
+    case "685d53b2537fff4608e05c67": // Judge 1 ID
+      fieldToUpdate = "judge1";
+      break;
+    case "JUDGE2_ID":
+      fieldToUpdate = "judge2";
+      break;
+    case "JUDGE3_ID":
+      fieldToUpdate = "judge3";
+      break;
+    case "JUDGE4_ID":
+      fieldToUpdate = "judge4";
+      break;
+    default:
+      return res.status(403).json({ error: "Unauthorized judge" });
+  }
 
+  try {
+    const updated = await COMPITITION.updateOne(
+      { "uploads._id": uploadId },
+      { $set: { [`uploads.$.${fieldToUpdate}`]: mark } }
+    );
 
+    if (updated.modifiedCount === 0) {
+      return res.status(404).json({ error: "Upload not found or mark not updated" });
+    }
+
+    res.status(200).json({ message: "Mark assigned successfully" });
+  } catch (err) {
+    console.error("Error assigning mark:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
 

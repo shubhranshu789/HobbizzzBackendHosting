@@ -6,6 +6,8 @@ const uploadSchema = new mongoose.Schema(
     pic: { type: String, required: true },
     uploadedBy: { type: ObjectId, ref: "USER", required: true },
     isApproved: { type: Boolean, default: false },
+    isHallofFame: { type: Boolean, default: false },
+
   },
   { timestamps: true } 
 );

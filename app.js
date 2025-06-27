@@ -19,6 +19,18 @@ require('./model/clubs/artClubs')
 require('./model/school')
 require('./model/clubs/approvedMember')
 require('./model/addCompitition')
+require('./model/calender')
+require('./model/judge')
+require('./model/principle')
+
+
+
+require('./model/editor')
+require('./model/EditorArtClub/journal')
+require('./model/EditorArtClub/clubNews')
+require('./model/EditorArtClub/clubDomain')
+require('./model/EditorArtClub/clubGallery')
+require('./model/EditorArtClub/clubHeritage')
 
 
 
@@ -32,6 +44,7 @@ app.use(require('./routes/chapter'))
 app.use(require('./routes/user'))
 app.use(require('./routes/artclub'))
 app.use(require('./routes/compitition'))
+app.use(require('./routes/editorArtClub'))
 
 
 
