@@ -41,6 +41,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(require('./routes/auth'))
 app.use(require('./routes/activity'))
 app.use(require('./routes/chapter'))
+app.use(require('./routes/school'))
 app.use(require('./routes/user'))
 app.use(require('./routes/artclub'))
 app.use(require('./routes/compitition'))

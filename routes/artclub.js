@@ -290,12 +290,29 @@ router.put("/artclub/approve-head", async (req, res) => {
       return res.status(400).json({ message: "User ID and District are required" });
     }
 
-    // Find club by district and update councilRequests and council
+    // Find the current head ID of the art club in the specified district
+    const clubToUpdate = await ARTCLUB.findOne({ district: district });
+    const currentHeadId = clubToUpdate.head;
+
+    // Update the current head's club attribute to null
+    if (currentHeadId) {
+      const updatedCurrentHead = await CABINATE.findByIdAndUpdate(
+        currentHeadId,
+        { club: null },
+        { new: true }
+      );
+
+      if (!updatedCurrentHead) {
+        console.log("Failed to update the current head's club attribute");
+      }
+    }
+
+    // Update club details after removing member request and updating head
     const updatedClub = await ARTCLUB.findOneAndUpdate(
       { district: district },
       {
         $pull: { memberRequests: userId },
-        head: userId 
+        head: userId,
       },
       { new: true }
     );
@@ -321,6 +338,7 @@ router.put("/artclub/approve-head", async (req, res) => {
     res.status(500).json({ error: "Failed to approve Head request" });
   }
 });
+
 
 
 router.put("/artclub/disapprove-head", async (req, res) => {
@@ -556,7 +574,7 @@ router.get("/artclub/info", async (req, res) => {
     const schools = await SCHOOL.find({ district, club: 'artclub' });
 
     // Fetch students for this district and artclub
-    const students = await USER.find({ district, club: 'artclub' });
+    const students = await USER.find({ district });
 
 
     // Prepare response object
