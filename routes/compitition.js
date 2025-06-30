@@ -235,23 +235,30 @@ router.get("/has-uploaded-compitition/:eventId", requireLogin, async (req, res) 
 });
 
 
-router.get("/event-participants-compi/:eventId", requireLoginUser, async (req, res) => {
+router.get("/event-participants-compi/:eventId", async (req, res) => {
   try {
-    const event = await COMPITITION.findById(req.params.eventId);
-    if (!event) return res.status(404).json({ error: "Event not found" });
+    const { eventId } = req.params;
 
-    const registrations = event.Registrations;
+    // 1. Find the competition by ID and select required fields
+    const event = await COMPITITION.findById(eventId).select("Registrations uploads");
+
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    // 2. Create a map of uploadedBy => pic
     const uploadsMap = new Map();
-
-    // Map uploadedBy => pic
     event.uploads.forEach(upload => {
-      uploadsMap.set(upload.uploadedBy.toString(), upload.pic);
+      if (upload.uploadedBy) {
+        uploadsMap.set(upload.uploadedBy.toString(), upload.pic);
+      }
     });
 
-    // Fetch user details for registered users
-    const users = await USER.find({ _id: { $in: registrations } })
+    // 3. Fetch all registered users' details
+    const users = await USER.find({ _id: { $in: event.Registrations } })
       .select("_id name email ip");
 
+    // 4. Merge user info with their uploads (if any)
     const participants = users.map(user => ({
       _id: user._id,
       name: user.name,
@@ -260,12 +267,14 @@ router.get("/event-participants-compi/:eventId", requireLoginUser, async (req, r
       pic: uploadsMap.get(user._id.toString()) || null
     }));
 
-    res.status(200).json({ participants });
+    return res.status(200).json({ participants });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    console.error("Error fetching participants:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 
 
@@ -397,7 +406,7 @@ router.patch("/assign-mark", async (req, res) => {
     case "685d53b2537fff4608e05c67": // Judge 1 ID
       fieldToUpdate = "judge1";
       break;
-    case "JUDGE2_ID":
+    case "685c4be8c6a4e7621e7d1740":
       fieldToUpdate = "judge2";
       break;
     case "JUDGE3_ID":
