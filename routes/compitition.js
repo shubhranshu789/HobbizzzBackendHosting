@@ -235,23 +235,30 @@ router.get("/has-uploaded-compitition/:eventId", requireLogin, async (req, res) 
 });
 
 
-router.get("/event-participants-compi/:eventId", requireLoginUser, async (req, res) => {
+router.get("/event-participants-compi/:eventId", async (req, res) => {
   try {
-    const event = await COMPITITION.findById(req.params.eventId);
-    if (!event) return res.status(404).json({ error: "Event not found" });
+    const { eventId } = req.params;
 
-    const registrations = event.Registrations;
+    // 1. Find the competition by ID and select required fields
+    const event = await COMPITITION.findById(eventId).select("Registrations uploads");
+
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    // 2. Create a map of uploadedBy => pic
     const uploadsMap = new Map();
-
-    // Map uploadedBy => pic
     event.uploads.forEach(upload => {
-      uploadsMap.set(upload.uploadedBy.toString(), upload.pic);
+      if (upload.uploadedBy) {
+        uploadsMap.set(upload.uploadedBy.toString(), upload.pic);
+      }
     });
 
-    // Fetch user details for registered users
-    const users = await USER.find({ _id: { $in: registrations } })
+    // 3. Fetch all registered users' details
+    const users = await USER.find({ _id: { $in: event.Registrations } })
       .select("_id name email ip");
 
+    // 4. Merge user info with their uploads (if any)
     const participants = users.map(user => ({
       _id: user._id,
       name: user.name,
@@ -260,12 +267,14 @@ router.get("/event-participants-compi/:eventId", requireLoginUser, async (req, r
       pic: uploadsMap.get(user._id.toString()) || null
     }));
 
-    res.status(200).json({ participants });
+    return res.status(200).json({ participants });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    console.error("Error fetching participants:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 
 
@@ -397,7 +406,7 @@ router.patch("/assign-mark", async (req, res) => {
     case "685d53b2537fff4608e05c67": // Judge 1 ID
       fieldToUpdate = "judge1";
       break;
-    case "JUDGE2_ID":
+    case "685c4be8c6a4e7621e7d1740":
       fieldToUpdate = "judge2";
       break;
     case "JUDGE3_ID":
@@ -428,14 +437,190 @@ router.patch("/assign-mark", async (req, res) => {
 });
 
 
+router.get("/:competitionId/upload/:uploadId/total-score", async (req, res) => {
+  const { competitionId, uploadId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(competitionId) || !mongoose.Types.ObjectId.isValid(uploadId)) {
+    return res.status(400).json({ error: "Invalid competition or upload ID" });
+  }
+
+  try {
+    const competition = await COMPITITION.findById(competitionId);
+
+    if (!competition) {
+      return res.status(404).json({ error: "Competition not found" });
+    }
+
+    const upload = competition.uploads.id(uploadId);
+
+    if (!upload) {
+      return res.status(404).json({ error: "Upload not found in competition" });
+    }
+
+    // Sum available judge scores (undefined treated as 0)
+    const totalScore =
+      (upload.judge1 || 0) +
+      (upload.judge2 || 0) +
+      (upload.judge3 || 0) +
+      (upload.judge4 || 0);
+
+    res.json({
+      uploadId,
+      totalScore,
+      breakdown: {
+        judge1: upload.judge1 || 0,
+        judge2: upload.judge2 || 0,
+        judge3: upload.judge3 || 0,
+        judge4: upload.judge4 || 0
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching upload score:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+router.get("/:competitionId/uploads/total-scores", async (req, res) => {
+  const { competitionId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(competitionId)) {
+    return res.status(400).json({ error: "Invalid competition ID" });
+  }
+
+  try {
+    const competition = await COMPITITION.findById(competitionId);
+
+    if (!competition) {
+      return res.status(404).json({ error: "Competition not found" });
+    }
+
+    const uploadsWithScores = competition.uploads.map(upload => {
+      const judge1 = upload.judge1 || 0;
+      const judge2 = upload.judge2 || 0;
+      const judge3 = upload.judge3 || 0;
+      const judge4 = upload.judge4 || 0;
+
+      return {
+        uploadId: upload._id,
+        totalScore: judge1 + judge2 + judge3 + judge4,
+        breakdown: { judge1, judge2, judge3, judge4 },
+        uploadedBy: upload.uploadedBy,
+        pic: upload.pic,
+        createdAt: upload.createdAt
+      };
+    });
+
+    res.json(uploadsWithScores);
+  } catch (error) {
+    console.error("Error fetching upload scores:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
 
+router.get("/:competitionId/results", async (req, res) => {
+  const { competitionId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(competitionId)) {
+    return res.status(400).json({ error: "Invalid competition ID" });
+  }
+
+  try {
+    const competition = await COMPITITION.findById(competitionId).populate("uploads.uploadedBy", "name email");
+
+    if (!competition) {
+      return res.status(404).json({ error: "Competition not found" });
+    }
+
+    const results = competition.uploads.map(upload => {
+      const judge1 = upload.judge1 || 0;
+      const judge2 = upload.judge2 || 0;
+      const judge3 = upload.judge3 || 0;
+      const judge4 = upload.judge4 || 0;
+      const totalScore = judge1 + judge2 + judge3 + judge4;
+
+      return {
+        uploadId: upload._id,
+        pic: upload.pic,
+        totalScore,
+        breakdown: { judge1, judge2, judge3, judge4 },
+        uploadedBy: upload.uploadedBy || null,
+        createdAt: upload.createdAt
+      };
+    });
+
+    // Sort by totalScore descending
+    results.sort((a, b) => b.totalScore - a.totalScore);
+
+    // Add ranks
+    results.forEach((item, index) => {
+      item.rank = index + 1;
+    });
+
+    res.json(results);
+  } catch (error) {
+    console.error("Error generating results:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
+router.put("/:competitionId/generate-result", async (req, res) => {
+  const { competitionId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(competitionId)) {
+    return res.status(400).json({ error: "Invalid competition ID" });
+  }
+
+  try {
+    const updatedComp = await COMPITITION.findByIdAndUpdate(
+      competitionId,
+      { $set: { resultLive: true } },
+      { new: true }
+    );
+
+    if (!updatedComp) {
+      return res.status(404).json({ error: "Competition not found" });
+    }
+
+    res.json({
+      message: "Result published successfully.",
+      resultLive: updatedComp.resultLive,
+      competitionId: updatedComp._id
+    });
+  } catch (error) {
+    console.error("Error setting resultLive:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
+router.get("/competitions/:id", async (req, res) => {
+  const { id } = req.params;
 
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: "Invalid competition ID" });
+  }
+
+  try {
+    const competition = await COMPITITION.findById(id)
+      .populate("postedBy", "name email")
+      .populate("Registrations", "name email")
+      .populate("judges", "name email")
+      .populate("uploads.uploadedBy", "name email");
+
+    if (!competition) {
+      return res.status(404).json({ error: "Competition not found" });
+    }
+
+    res.json(competition);
+  } catch (error) {
+    console.error("Error fetching competition:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
 
