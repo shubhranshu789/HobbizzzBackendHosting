@@ -9,6 +9,9 @@ const app = express();
 
 
 app.use(cors())
+
+// --------------------------------------------ArtClub--------------------------------------------------
+
 require('./model/user')
 require('./model/cabinate')
 require('./model/addActivity')
@@ -32,6 +35,21 @@ require('./model/EditorArtClub/clubDomain')
 require('./model/EditorArtClub/clubGallery')
 require('./model/EditorArtClub/clubHeritage')
 
+// ----------------------------------------------------------------------------------------------
+
+
+
+// -----------------------------------------craftClubModel-----------------------------------------------------
+require('./AllModels/craftClubModel/craftdirector')
+require('./AllModels/craftClubModel/crafteditor')
+require('./AllModels/craftClubModel/craftjudge')
+require('./AllModels/craftClubModel/craftprinciple')
+require('./AllModels/craftClubModel/craftuser')
+require('./AllModels/craftClubModel/craftcabinate')
+
+// ----------------------------------------------------------------------------------------------
+
+
 
 
 
@@ -46,6 +64,15 @@ app.use(require('./routes/artclub'))
 app.use(require('./routes/compitition'))
 app.use(require('./routes/editorArtClub'))
 
+
+
+
+
+
+// -----------------------------------------CraftClubRoute-----------------------------------------------------
+app.use(require('./routes/AllClubRoutes/CraftClub/auth'))
+
+// ----------------------------------------------------------------------------------------------
 
 
 

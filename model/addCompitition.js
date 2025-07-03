@@ -23,6 +23,7 @@ const activitySchema = new mongoose.Schema(
     postedBy: [{ type: ObjectId, ref: "DIRECTOR" }],
     Registrations: [{ type: ObjectId, ref: "USER" }],
     isLive: { type: Boolean, default: false },
+    resultLive: { type: Boolean, default: false },
     judges: [{ type: ObjectId, ref: "JUDGE" }],
     uploads: [uploadSchema], 
   },
