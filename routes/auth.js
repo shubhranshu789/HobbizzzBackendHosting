@@ -91,7 +91,7 @@ router.post("/cabinate-signin" , (req , res) => {
 
 
 router.post("/director-signup", async (req, res) => {
-  const { name, password, email, state, district, clubName } = req.body;
+  const { name, password, email, state, district, club } = req.body;
 
   const ip =
     req.headers["cf-connecting-ip"] ||
@@ -100,13 +100,13 @@ router.post("/director-signup", async (req, res) => {
     req.socket.remoteAddress ||
     "";
 
-  if (!name || !password || !email || !state || !district || !clubName) {
+  if (!name || !password || !email || !state || !district || !club) {
     return res.status(422).json({ error: "Please add all the fields" });
   }
 
   try {
     const savedUser = await DIRECTOR.findOne({
-      $or: [{ email: email }, { clubName: clubName }]
+      $or: [{ email: email }, { club: club }]
     });
 
     if (savedUser) {
@@ -124,12 +124,12 @@ router.post("/director-signup", async (req, res) => {
       ip,
       state,
       district,
-      clubName: clubName.toUpperCase()
+      club: club.toUpperCase()
     });
 
     const savedDirector = await director.save();
 
-    if (clubName.toUpperCase() === "ART") {
+    if (club.toUpperCase() === "ART") {
       const artClubId = "684a8c32d27f1ad8681187d0";
       await ARTCLUB.findByIdAndUpdate(artClubId, {
         $push: { director: savedDirector._id }
@@ -159,9 +159,9 @@ router.post("/director-signin" , (req , res) => {
             if(match){
                 // return res.status(200).json({message :"Signed In Successufully" })
                 const token = jwt.sign({_id:savedUser.id} , Jwt_secret)
-                const {_id ,name , email , state , district , clubName } = savedUser
-                res.json({token , user:{_id ,name , email,  state , district , clubName  }})
-                console.log({token , user:{_id ,name , email ,  state , district , clubName}})
+                const {_id ,name , email , state , district , club } = savedUser
+                res.json({token , user:{_id ,name , email,  state , district , club  }})
+                console.log({token , user:{_id ,name , email ,  state , district , club}})
             }else{
                 return res.status(422).json({error :"Invalid password" })
             }
@@ -175,7 +175,7 @@ router.post("/director-signin" , (req , res) => {
 
 
 router.post("/editor-signup", async (req, res) => {
-  const { name, password, email, state, district, clubName } = req.body;
+  const { name, password, email, state, district, club } = req.body;
 
   const ip =
     req.headers["cf-connecting-ip"] ||
@@ -184,13 +184,13 @@ router.post("/editor-signup", async (req, res) => {
     req.socket.remoteAddress ||
     "";
 
-  if (!name || !password || !email || !state || !district || !clubName) {
+  if (!name || !password || !email || !state || !district || !club) {
     return res.status(422).json({ error: "Please add all the fields" });
   }
 
   try {
     const savedUser = await EDITOR.findOne({
-      $or: [{ email: email }, { clubName: clubName }]
+      $or: [{ email: email }, { club: club }]
     });
 
     if (savedUser) {
@@ -208,12 +208,12 @@ router.post("/editor-signup", async (req, res) => {
       ip,
       state,
       district,
-      clubName: clubName.toUpperCase()
+      club: club.toUpperCase()
     });
 
     const savedDirector = await director.save();
 
-    if (clubName.toUpperCase() === "ART") {
+    if (club.toUpperCase() === "ART") {
       const artClubId = "684a8c32d27f1ad8681187d0";
       await ARTCLUB.findByIdAndUpdate(artClubId, {
         $push: { director: savedDirector._id }
@@ -244,9 +244,9 @@ router.post("/editor-signin" , (req , res) => {
             if(match){
                 // return res.status(200).json({message :"Signed In Successufully" })
                 const token = jwt.sign({_id:savedUser.id} , Jwt_secret)
-                const {_id ,name , email , state , district , clubName } = savedUser
-                res.json({token , user:{_id ,name , email,  state , district , clubName  }})
-                console.log({token , user:{_id ,name , email ,  state , district , clubName}})
+                const {_id ,name , email , state , district , club } = savedUser
+                res.json({token , user:{_id ,name , email,  state , district , club  }})
+                console.log({token , user:{_id ,name , email ,  state , district , club}})
             }else{
                 return res.status(422).json({error :"Invalid password" })
             }
@@ -348,7 +348,7 @@ router.post("/judge-signin" , (req , res) => {
 
 
 router.post("/principle-signup", async (req, res) => {
-  const { name, password, email, state, district, clubName } = req.body;
+  const { name, password, email, state, district, club } = req.body;
 
   const ip =
     req.headers["cf-connecting-ip"] ||
@@ -357,13 +357,13 @@ router.post("/principle-signup", async (req, res) => {
     req.socket.remoteAddress ||
     "";
 
-  if (!name || !password || !email || !state || !district || !clubName) {
+  if (!name || !password || !email || !state || !district || !club) {
     return res.status(422).json({ error: "Please add all the fields" });
   }
 
   try {
     const savedUser = await PRINCIPLE.findOne({
-      $or: [{ email: email }, { clubName: clubName }]
+      $or: [{ email: email }, { club: club }]
     });
 
     if (savedUser) {
@@ -381,12 +381,12 @@ router.post("/principle-signup", async (req, res) => {
       ip,
       state,
       district,
-      clubName: clubName.toUpperCase()
+      club: club.toUpperCase()
     });
 
     const savedDirector = await director.save();
 
-    if (clubName.toUpperCase() === "ART") {
+    if (club.toUpperCase() === "ART") {
       const artClubId = "684a8c32d27f1ad8681187d0";
       await ARTCLUB.findByIdAndUpdate(artClubId, {
         $push: { director: savedDirector._id }
@@ -418,9 +418,9 @@ router.post("/principle-signin" , (req , res) => {
             if(match){
                 // return res.status(200).json({message :"Signed In Successufully" })
                 const token = jwt.sign({_id:savedUser.id} , Jwt_secret)
-                const {_id ,name , email , state , district , clubName } = savedUser
-                res.json({token , user:{_id ,name , email,  state , district , clubName  }})
-                console.log({token , user:{_id ,name , email ,  state , district , clubName}})
+                const {_id ,name , email , state , district , club } = savedUser
+                res.json({token , user:{_id ,name , email,  state , district , club  }})
+                console.log({token , user:{_id ,name , email ,  state , district , club}})
             }else{
                 return res.status(422).json({error :"Invalid password" })
             }
