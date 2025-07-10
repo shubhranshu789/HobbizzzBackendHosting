@@ -34,6 +34,8 @@ require('./model/EditorArtClub/clubNews')
 require('./model/EditorArtClub/clubDomain')
 require('./model/EditorArtClub/clubGallery')
 require('./model/EditorArtClub/clubHeritage')
+require('./model/EditorArtClub/clublegacy')
+
 
 // ----------------------------------------------------------------------------------------------
 

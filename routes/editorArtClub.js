@@ -13,6 +13,7 @@ const CLUBDOMAIN = mongoose.model("CLUBDOMAIN");
 const GALLERY = mongoose.model("GALLERY");
 const HERITAGE = mongoose.model("HERITAGE");
 const CALENDAR = mongoose.model("CALENDAR");
+const LEGACY = mongoose.model("LEGACY");
 
 
 // const requireLoginUser = require("../middleWares/requireLoginUser");
@@ -324,6 +325,78 @@ router.delete('/api/events/by-date/:date', async (req, res) => {
 // ------------------------------------------------------------------------------------------------------------
 
 
+
+
+// -----------------------------------------------------------------------------------------------------------
+router.post('/LEGACY', async (req, res) => {
+  try {
+    const { title, category, origin, imageUrl, description, period, tags } = req.body;
+
+    // Create new document
+    const newEntry = new LEGACY({
+      title,
+      category,
+      origin,
+      imageUrl,
+      description,
+      period,
+      tags,
+    });
+
+    const saved = await newEntry.save();
+    return res.status(201).json({
+      success: true,
+      message: 'Hall of Fame entry created successfully!',
+      data: saved,
+    });
+  } catch (error) {
+    console.error('Error creating Hall of Fame entry:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message,
+    });
+  }
+});
+
+
+// GET: API FOR HALL OF FAME
+router.get('/LEGACYgetallpost', async (req, res) => {
+  try {
+    const hallOfFame = await LEGACY.find().sort({ publishedAt: -1 }); // Latest first
+    res.status(200).json({
+      success: true,
+      count: hallOfFame.length,
+      data: hallOfFame
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch news',
+      error: error.message
+    }); 
+  }
+});
+
+
+router.get("/artLEGACY/:id", async (req, res) => {
+  try {
+    const journalId = req.params.id;
+
+    const journal = await LEGACY.findById(journalId);
+    if (!journal) {
+      return res.status(404).json({ message: "Journal not found" });
+    }
+
+    res.json(journal);
+  } catch (err) {
+    console.error("Error fetching journal:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+// -----------------------------------------------------------------------------------------------------------
 
 
 
