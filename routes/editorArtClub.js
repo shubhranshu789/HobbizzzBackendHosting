@@ -19,6 +19,9 @@ const LEGACY = mongoose.model("LEGACY");
 // const requireLoginUser = require("../middleWares/requireLoginUser");
 
 // POST /api/news — Create news
+
+
+// ---------------------------------------------------------------clubnews----------------------------------------------------------
 router.post('/clubnews', async (req, res) => {
   try {
     const newsData = req.body;
@@ -39,6 +42,86 @@ router.post('/clubnews', async (req, res) => {
     });
   }
 });
+
+
+router.get("/artNews/:id", async (req, res) => {
+  try {
+    const journalId = req.params.id;
+
+    const journal = await CLUBNEWS.findById(journalId);
+    if (!journal) {
+      return res.status(404).json({ message: "Journal not found" });
+    }
+
+    res.json(journal);
+  } catch (err) {
+    console.error("Error fetching journal:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+router.get('/clubnewsviewallpost', async (req, res) => {
+  try {
+    const allNews = await CLUBNEWS.find().sort({ publishedAt: -1 }); // Latest first
+    res.status(200).json({
+      success: true,
+      count: allNews.length,
+      data: allNews
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch news',
+      error: error.message
+    }); 
+  }
+});
+
+
+router.delete('/club-news/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedDoc = await CLUBNEWS.findByIdAndDelete(id);
+
+    if (!deletedDoc) {
+      return res.status(404).json({ message: 'Journal not found' });
+    }
+
+    res.status(200).json({ message: 'Journal deleted successfully', data: deletedDoc });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting journal', error: error.message });
+  }
+});
+
+router.put('/club-news-update/:id', async (req, res) => {
+  const { id } = req.params;
+  const updateData = req.body;
+
+  try {
+    const updatedJournal = await CLUBNEWS.findByIdAndUpdate(id, updateData, {
+      new: true, // return the updated document
+      // runValidators: true, // apply schema validation
+    });
+
+    if (!updatedJournal) {
+      return res.status(404).json({ message: 'Not found' });
+    }
+
+    res.status(200).json({ message: 'Updated successfully', data: updatedJournal });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating', error: error.message });
+  }
+});
+
+// -------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+// ----------------------------------------------------------clubjournal---------------------------------------------------------------
 
 router.post('/clubjournal', async (req, res) => {
   try {
@@ -61,6 +144,84 @@ router.post('/clubjournal', async (req, res) => {
   }
 });
 
+router.get('/clubjpurnalviewallpost', async (req, res) => {
+  try {
+    const allNews = await CLUBJOURNAL.find().sort({ publishedAt: -1 }); // Latest first
+    res.status(200).json({
+      success: true,
+      count: allNews.length,
+      data: allNews
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch news',
+      error: error.message
+    }); 
+  }
+});
+
+
+router.get("/artJournal/:id", async (req, res) => {
+  try {
+    const journalId = req.params.id;
+
+    const journal = await CLUBJOURNAL.findById(journalId);
+    if (!journal) {
+      return res.status(404).json({ message: "Journal not found" });
+    }
+
+    res.json(journal);
+  } catch (err) {
+    console.error("Error fetching journal:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+router.delete('/club-journal/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedDoc = await CLUBJOURNAL.findByIdAndDelete(id);
+
+    if (!deletedDoc) {
+      return res.status(404).json({ message: 'Journal not found' });
+    }
+
+    res.status(200).json({ message: 'Journal deleted successfully', data: deletedDoc });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting journal', error: error.message });
+  }
+});
+
+
+router.put('/club-journal-update/:id', async (req, res) => {
+  const { id } = req.params;
+  const updateData = req.body;
+
+  try {
+    const updatedJournal = await CLUBJOURNAL.findByIdAndUpdate(id, updateData, {
+      new: true, // return the updated document
+      // runValidators: true, // apply schema validation
+    });
+
+    if (!updatedJournal) {
+      return res.status(404).json({ message: 'Journal not found' });
+    }
+
+    res.status(200).json({ message: 'Journal updated successfully', data: updatedJournal });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating journal', error: error.message });
+  }
+});
+
+// -------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+// ----------------------------------------------------------clubdomain---------------------------------------------------------------
 
 router.post('/clubdomain', async (req, res) => {
   try {
@@ -84,42 +245,6 @@ router.post('/clubdomain', async (req, res) => {
 });
 
 
-router.get('/clubnewsviewallpost', async (req, res) => {
-  try {
-    const allNews = await CLUBNEWS.find().sort({ publishedAt: -1 }); // Latest first
-    res.status(200).json({
-      success: true,
-      count: allNews.length,
-      data: allNews
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch news',
-      error: error.message
-    }); 
-  }
-});
-
-
-router.get('/clubjpurnalviewallpost', async (req, res) => {
-  try {
-    const allNews = await CLUBJOURNAL.find().sort({ publishedAt: -1 }); // Latest first
-    res.status(200).json({
-      success: true,
-      count: allNews.length,
-      data: allNews
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch news',
-      error: error.message
-    }); 
-  }
-});
-
-
 router.get('/clubdomainviewallpost', async (req, res) => {
   try {
     const allNews = await CLUBDOMAIN.find().sort({ publishedAt: -1 }); // Latest first
@@ -138,13 +263,11 @@ router.get('/clubdomainviewallpost', async (req, res) => {
 });
 
 
-
-
-router.get("/artJournal/:id", async (req, res) => {
+router.get("/artDomain/:id", async (req, res) => {
   try {
     const journalId = req.params.id;
 
-    const journal = await CLUBJOURNAL.findById(journalId);
+    const journal = await CLUBDOMAIN.findById(journalId);
     if (!journal) {
       return res.status(404).json({ message: "Journal not found" });
     }
@@ -156,22 +279,53 @@ router.get("/artJournal/:id", async (req, res) => {
   }
 });
 
+router.delete('/club-domain/:id', async (req, res) => {
+  const { id } = req.params;
 
-router.get("/artNews/:id", async (req, res) => {
   try {
-    const journalId = req.params.id;
+    const deletedDoc = await CLUBDOMAIN.findByIdAndDelete(id);
 
-    const journal = await CLUBNEWS.findById(journalId);
-    if (!journal) {
-      return res.status(404).json({ message: "Journal not found" });
+    if (!deletedDoc) {
+      return res.status(404).json({ message: 'Journal not found' });
     }
 
-    res.json(journal);
-  } catch (err) {
-    console.error("Error fetching journal:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(200).json({ message: 'Journal deleted successfully', data: deletedDoc });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting journal', error: error.message });
   }
 });
+
+router.put('/club-domain-update/:id', async (req, res) => {
+  const { id } = req.params;
+  const updateData = req.body;
+
+  try {
+    const updatedJournal = await CLUBDOMAIN.findByIdAndUpdate(id, updateData, {
+      new: true, // return the updated document
+      // runValidators: true, // apply schema validation
+    });
+
+    if (!updatedJournal) {
+      return res.status(404).json({ message: 'Journal not found' });
+    }
+
+    res.status(200).json({ message: 'Journal updated successfully', data: updatedJournal });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating journal', error: error.message });
+  }
+});
+// -------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -205,6 +359,22 @@ router.get('/viewgallerypost', async (req, res) => {
   }
 });
 
+
+router.delete('/club-gallery/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedDoc = await GALLERY.findByIdAndDelete(id);
+
+    if (!deletedDoc) {
+      return res.status(404).json({ message: 'Journal not found' });
+    }
+
+    res.status(200).json({ message: 'Journal deleted successfully', data: deletedDoc });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting journal', error: error.message });
+  }
+});
 
 
 // --------------------------------------------------------------------------------------------------------
@@ -283,6 +453,43 @@ router.get("/artHeritage/:id", async (req, res) => {
   }
 });
 
+
+router.delete('/club-heritage/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedDoc = await HERITAGE.findByIdAndDelete(id);
+
+    if (!deletedDoc) {
+      return res.status(404).json({ message: 'Journal not found' });
+    }
+
+    res.status(200).json({ message: 'Journal deleted successfully', data: deletedDoc });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting journal', error: error.message });
+  }
+});
+
+router.put('/club-heritage-update/:id', async (req, res) => {
+  const { id } = req.params;
+  const updateData = req.body;
+
+  try {
+    const updatedJournal = await HERITAGE.findByIdAndUpdate(id, updateData, {
+      new: true, // return the updated document
+      // runValidators: true, // apply schema validation
+    });
+
+    if (!updatedJournal) {
+      return res.status(404).json({ message: 'Journal not found' });
+    }
+
+    res.status(200).json({ message: 'Journal updated successfully', data: updatedJournal });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating journal', error: error.message });
+  }
+});
+
 // ------------------------------------------------------------------------------------------------------------
 
 
@@ -327,7 +534,7 @@ router.delete('/api/events/by-date/:date', async (req, res) => {
 
 
 
-// -----------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------LEGACY-------------------------------------------------------
 router.post('/LEGACY', async (req, res) => {
   try {
     const { title, category, origin, imageUrl, description, period, tags } = req.body;
@@ -395,6 +602,42 @@ router.get("/artLEGACY/:id", async (req, res) => {
   }
 });
 
+
+router.delete('/club-legacy/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedDoc = await LEGACY.findByIdAndDelete(id);
+
+    if (!deletedDoc) {
+      return res.status(404).json({ message: 'Journal not found' });
+    }
+
+    res.status(200).json({ message: 'Journal deleted successfully', data: deletedDoc });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting journal', error: error.message });
+  }
+});
+
+router.put('/club-legacy-update/:id', async (req, res) => {
+  const { id } = req.params;
+  const updateData = req.body;
+
+  try {
+    const updatedJournal = await LEGACY.findByIdAndUpdate(id, updateData, {
+      new: true, // return the updated document
+      // runValidators: true, // apply schema validation
+    });
+
+    if (!updatedJournal) {
+      return res.status(404).json({ message: 'Journal not found' });
+    }
+
+    res.status(200).json({ message: 'Journal updated successfully', data: updatedJournal });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating journal', error: error.message });
+  }
+});
 
 // -----------------------------------------------------------------------------------------------------------
 
