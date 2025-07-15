@@ -26,6 +26,7 @@ router.get("/get-events", async (req, res) => {
     const formattedEvents = events.map((chapter) => ({
       event_id: chapter._id,
       title: chapter.title,
+      image: chapter.image,
       date: chapter.date,
       venue: chapter.venue,
       description: chapter.description || "",
@@ -60,7 +61,7 @@ router.post("/create-event", requireLoginUser, async (req, res) => {
 
 
   try {
-    const { title, description, date, venue, club, district, status } = req.body;
+    const { title, description, date, venue, club, district, status, image } = req.body;
 
     // Validate required fields
     if (!title || !date || !venue || !club || !district) {
@@ -68,7 +69,7 @@ router.post("/create-event", requireLoginUser, async (req, res) => {
     }
 
     // Fetch Director based on club
-    const director = await DIRECTOR.findOne({ clubName: club });
+    const director = await DIRECTOR.findOne({ club: club });
     if (!director) {
       return res.status(404).json({ message: `Director not found for club: ${club}` });
     }
@@ -92,6 +93,7 @@ router.post("/create-event", requireLoginUser, async (req, res) => {
     // Create new Event
     const newEvent = new LOCALEVENT({
       title,
+      image,
       description,
       date,
       venue,

@@ -27,6 +27,7 @@ router.get("/get-events", async (req, res) => {
 
     const formattedEvents = events.map((chapter) => ({
       event_id: chapter._id,
+      image: chapter.image,
       title: chapter.title,
       date: chapter.date,
       venue: chapter.venue,
@@ -60,7 +61,7 @@ router.post("/create-chapter", requireLoginUser, async (req, res) => {
 
 
   try {
-    const { title, description, date, venue, club, district, status } = req.body;
+    const { title, description, date, venue, club, district, status, image } = req.body;
 
     // Validate required fields
     if (!title || !date || !venue || !club || !district) {
@@ -68,7 +69,7 @@ router.post("/create-chapter", requireLoginUser, async (req, res) => {
     }
 
     // Fetch Director based on club
-    const director = await DIRECTOR.findOne({ clubName: club });
+    const director = await DIRECTOR.findOne({ club: club });
     if (!director) {
       return res.status(404).json({ message: `Director not found for club: ${club}` });
     }
@@ -90,8 +91,9 @@ router.post("/create-chapter", requireLoginUser, async (req, res) => {
     const council_members = artClub.council;
 
     // Create new Chapter
-    const newChapter = new CHAPTER({
+    const newChapter = new LOCALEVENT({
       title,
+      image,
       description,
       date,
       venue,
