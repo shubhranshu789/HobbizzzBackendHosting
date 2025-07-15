@@ -13,10 +13,8 @@ const CABINATE = mongoose.model("CABINATE");
 const DIRECTOR = mongoose.model("DIRECTOR");
 const SCHOOL = mongoose.model("SCHOOL");
 const USER = mongoose.model("USER");
-<<<<<<< HEAD
-=======
+
 // const APPROVEDMEMBER = mongoose.model("APPROVEDMEMBER");
->>>>>>> a414a797dc9c01f5150556f1643592811ac91cb2
 
 
 
