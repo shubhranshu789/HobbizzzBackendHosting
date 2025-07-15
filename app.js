@@ -20,6 +20,10 @@ require('./model/localEvent')
 require('./model/director')
 require('./model/clubs/artClubs')
 require('./model/school')
+<<<<<<< HEAD
+=======
+// require('./model/clubs/approvedMember')
+>>>>>>> a414a797dc9c01f5150556f1643592811ac91cb2
 require('./model/addCompitition')
 require('./model/calender')
 require('./model/judge')
