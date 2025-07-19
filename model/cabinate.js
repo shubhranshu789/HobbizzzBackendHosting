@@ -20,8 +20,8 @@ const cabinateSchema = new mongoose.Schema({
     },
     club:{
         type: String,
-        // default: null
-        require:true
+        default: null
+        // require:true
     },
     school:{
         type: String,
@@ -34,7 +34,8 @@ const cabinateSchema = new mongoose.Schema({
     //add IP
     ip:{
         type: String,
-        require:true
+        // require:true
+        default: null
     }
 })
 

@@ -23,14 +23,14 @@ const {Jwt_secret} = require("../keys");
 
 
 router.post("/cabinate-signup" , (req,res)=> {
-    const {name , password ,email , state , district , school , club} = req.body;
+    const {name , password ,email , state , district , school} = req.body;
     const ip = req.headers['cf-connecting-ip'] ||
                 req.headers['x-real-ip'] ||
                 req.headers['x-forwarded-for'] ||
                 req.socket.remoteAddress || '' ;
 
 
-    if(!name ||!password ||!email || !state || !district || !school || !club){
+    if(!name ||!password ||!email || !state || !district || !school){
         return res.status(422).json({error : "Please add all the fields"})
     }
 
@@ -48,8 +48,7 @@ router.post("/cabinate-signup" , (req,res)=> {
                 ip,
                 school,
                 district,
-                state,
-                club
+                state
             })
         
             teacher.save()
