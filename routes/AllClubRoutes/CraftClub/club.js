@@ -7,13 +7,8 @@ const jwt = require("jsonwebtoken");
 
 const ARTCLUB = mongoose.model("ARTCLUB");
 const {Jwt_secret} = require("../../../keys");
-
-
 const requireLoginUser = require("../../../middleWares/requireLoginUser");
 const requireLogin = require("../../../middleWares/requireLogin");
-
-
-
 const CABINATE = mongoose.model("CABINATE");
 const DIRECTOR = mongoose.model("DIRECTOR");
 const SCHOOL = mongoose.model("SCHOOL");

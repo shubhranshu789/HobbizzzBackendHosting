@@ -8,14 +8,12 @@ const requireLogin = require("../../../middleWares/requireLogin");
 const requireLoginUser = require("../../../middleWares/requireUser");
 
 // const CABINATE = mongoose.model("CABINATE");
-const ACTIVITY = mongoose.model("ACTIVITY");
-const CABINATE = mongoose.model("CABINATE");
-const DIRECTOR = mongoose.model("DIRECTOR");
+const CRAFTACTIVITY = mongoose.model("CRAFTACTIVITY");
 const ARTCLUB = mongoose.model("ARTCLUB");
-const USER = mongoose.model("USER");
+const CRAFTUSER = mongoose.model("CRAFTUSER");
 
 
-router.post("/create-activity", requireLogin, async (req, res) => {
+router.post("/craftcreate-activity", requireLogin, async (req, res) => {
   const { title, desc, pic, category } = req.body;
 
   if (!title || !desc || !pic || !category) {
@@ -23,7 +21,7 @@ router.post("/create-activity", requireLogin, async (req, res) => {
   }
 
   try {
-    const event = new ACTIVITY({
+    const event = new CRAFTACTIVITY({
       title,
       category ,
       desc,
@@ -47,15 +45,15 @@ router.post("/create-activity", requireLogin, async (req, res) => {
 });
 
 
-router.get("/allActivities", requireLogin, (req, res) => {
-  ACTIVITY.find().then((events) => {
+router.get("/craftallActivities", requireLogin, (req, res) => {
+  CRAFTACTIVITY.find().then((events) => {
     res.json(events);
   });
 });
 
 
-router.get("/getactivity/:activityid", (req, res) => {
-  ACTIVITY.findOne({ _id: req.params.activityid })
+router.get("/craftgetactivity/:activityid", (req, res) => {
+  CRAFTACTIVITY.findOne({ _id: req.params.activityid })
     .then(activity => {
       // console.log(activity)
       return res.json(activity)
@@ -64,12 +62,12 @@ router.get("/getactivity/:activityid", (req, res) => {
 
 
 
-router.post("/register-activity/:activityId", requireLogin, async (req, res) => {
+router.post("/craftregister-activity/:activityId", requireLogin, async (req, res) => {
   const userId = req.user._id;
   const { activityId } = req.params;
 
   try {
-    const activity = await ACTIVITY.findById(activityId);
+    const activity = await CRAFTACTIVITY.findById(activityId);
 
     if (!activity) {
       return res.status(404).json({ error: "Activity not found" });
@@ -92,12 +90,12 @@ router.post("/register-activity/:activityId", requireLogin, async (req, res) => 
 
 
 
-router.post("/unregister-activity/:activityId", requireLogin, async (req, res) => {
+router.post("/craftunregister-activity/:activityId", requireLogin, async (req, res) => {
   const userId = req.user._id;
   const { activityId } = req.params;
 
   try {
-    const activity = await ACTIVITY.findById(activityId);
+    const activity = await CRAFTACTIVITY.findById(activityId);
 
     if (!activity) return res.status(404).json({ error: "Activity not found" });
 
@@ -116,13 +114,13 @@ router.post("/unregister-activity/:activityId", requireLogin, async (req, res) =
 });
 
 
-router.post("/upload-photo/:eventId", requireLogin, async (req, res) => {
+router.post("/craftupload-photo/:eventId", requireLogin, async (req, res) => {
   try {
     const { pic } = req.body;
     const userId = req.user._id.toString();
     const eventId = req.params.eventId;
 
-    const event = await ACTIVITY.findById(eventId);
+    const event = await CRAFTACTIVITY.findById(eventId);
     if (!event) return res.status(404).json({ error: "Event not found" });
 
 
@@ -149,11 +147,11 @@ router.post("/upload-photo/:eventId", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/has-uploaded/:eventId", requireLogin, async (req, res) => {
+router.get("/crafthas-uploaded/:eventId", requireLogin, async (req, res) => {
   const userId = req.user._id.toString();
   const eventId = req.params.eventId;
 
-  const event = await ACTIVITY.findById(eventId);
+  const event = await CRAFTACTIVITY.findById(eventId);
   if (!event) return res.status(404).json({ error: "Event not found" });
 
   const hasUploaded = event.uploads.some(
@@ -165,9 +163,9 @@ router.get("/has-uploaded/:eventId", requireLogin, async (req, res) => {
 
 
 
-router.get("/event-participants/:eventId", requireLogin, async (req, res) => {
+router.get("/craftevent-participants/:eventId", requireLogin, async (req, res) => {
   try {
-    const event = await ACTIVITY.findById(req.params.eventId);
+    const event = await CRAFTACTIVITY.findById(req.params.eventId);
     if (!event) return res.status(404).json({ error: "Event not found" });
 
     const registrations = event.Registrations;
@@ -179,7 +177,7 @@ router.get("/event-participants/:eventId", requireLogin, async (req, res) => {
     });
 
     // Fetch user details for registered users
-    const users = await USER.find({ _id: { $in: registrations } })
+    const users = await CRAFTUSER.find({ _id: { $in: registrations } })
       .select("_id name email ip");
 
     const participants = users.map(user => ({
@@ -197,9 +195,9 @@ router.get("/event-participants/:eventId", requireLogin, async (req, res) => {
   }
 });
 
-router.get("/event-participants-user/:eventId", requireLoginUser, async (req, res) => {
+router.get("/craftevent-participants-user/:eventId", requireLoginUser, async (req, res) => {
   try {
-    const event = await ACTIVITY.findById(req.params.eventId);
+    const event = await CRAFTACTIVITY.findById(req.params.eventId);
     if (!event) return res.status(404).json({ error: "Event not found" });
 
     const registrations = event.Registrations;
@@ -211,7 +209,7 @@ router.get("/event-participants-user/:eventId", requireLoginUser, async (req, re
     });
 
     // Fetch user details for registered users
-    const users = await USER.find({ _id: { $in: registrations } })
+    const users = await CRAFTUSER.find({ _id: { $in: registrations } })
       .select("_id name email ip");
 
     const participants = users.map(user => {
@@ -241,11 +239,11 @@ router.get("/event-participants-user/:eventId", requireLoginUser, async (req, re
 
 
 // PUT request to approve an uploaded image
-router.put("/activity/approve-upload/:activityId/:uploadId", async (req, res) => {
+router.put("/craftactivity/approve-upload/:activityId/:uploadId", async (req, res) => {
   const { activityId, uploadId } = req.params;
 
   try {
-    const activity = await ACTIVITY.findOneAndUpdate(
+    const activity = await CRAFTACTIVITY.findOneAndUpdate(
       {
         _id: activityId,
         "uploads._id" : uploadId
@@ -268,11 +266,11 @@ router.put("/activity/approve-upload/:activityId/:uploadId", async (req, res) =>
 });
 
 
-router.put("/activity/disapprove-upload/:activityId/:uploadId", async (req, res) => {
+router.put("/craftactivity/disapprove-upload/:activityId/:uploadId", async (req, res) => {
   const { activityId, uploadId } = req.params;
 
   try {
-    const activity = await ACTIVITY.findOneAndUpdate(
+    const activity = await CRAFTACTIVITY.findOneAndUpdate(
       { _id: activityId, "uploads._id": uploadId },
       { $set: { "uploads.$.isApproved": false } },
       { new: true }
@@ -291,12 +289,12 @@ router.put("/activity/disapprove-upload/:activityId/:uploadId", async (req, res)
 
 
 
-router.get("/activity/approved-uploads/:eventId", async (req, res) => {
+router.get("/craftactivity/approved-uploads/:eventId", async (req, res) => {
   try {
     const { eventId } = req.params;
 
     // Step 1: Get the activity
-    const activity = await ACTIVITY.findById(eventId);
+    const activity = await CRAFTACTIVITY.findById(eventId);
     if (!activity) return res.status(404).json({ error: "Activity not found" });
 
     // Step 2: Filter approved uploads
@@ -304,7 +302,7 @@ router.get("/activity/approved-uploads/:eventId", async (req, res) => {
 
     // Step 3: Fetch user details for those uploads
     const userIds = approvedUploads.map(u => u.uploadedBy);
-    const users = await USER.find({ _id: { $in: userIds } }).select("_id name email");
+    const users = await CRAFTUSER.find({ _id: { $in: userIds } }).select("_id name email");
 
     // Step 4: Map user info into uploads
     const userMap = new Map();
@@ -339,11 +337,11 @@ router.get("/activity/approved-uploads/:eventId", async (req, res) => {
 
 
 
-router.put("/activity/approve-halloffame/:activityId/:uploadId", async (req, res) => {
+router.put("/craftactivity/approve-halloffame/:activityId/:uploadId", async (req, res) => {
   const { activityId, uploadId } = req.params;
 
   try {
-    const activity = await ACTIVITY.findOneAndUpdate(
+    const activity = await CRAFTACTIVITY.findOneAndUpdate(
       {
         _id: activityId,
         "uploads._id" : uploadId
@@ -366,11 +364,11 @@ router.put("/activity/approve-halloffame/:activityId/:uploadId", async (req, res
 });
 
 
-router.put("/activity/disapprove-halloffame/:activityId/:uploadId", async (req, res) => {
+router.put("/craftactivity/disapprove-halloffame/:activityId/:uploadId", async (req, res) => {
   const { activityId, uploadId } = req.params;
 
   try {
-    const activity = await ACTIVITY.findOneAndUpdate(
+    const activity = await CRAFTACTIVITY.findOneAndUpdate(
       { _id: activityId, "uploads._id": uploadId },
       { $set: { "uploads.$.isHallofFame": false } },
       { new: true }
@@ -389,12 +387,12 @@ router.put("/activity/disapprove-halloffame/:activityId/:uploadId", async (req, 
 
 
 
-router.get("/activity/hallOfFamePosts/:eventId", async (req, res) => {
+router.get("/craftactivity/hallOfFamePosts/:eventId", async (req, res) => {
   try {
     const { eventId } = req.params;
 
     // Step 1: Get the activity
-    const activity = await ACTIVITY.findById(eventId);
+    const activity = await CRAFTACTIVITY.findById(eventId);
     if (!activity) return res.status(404).json({ error: "Activity not found" });
 
     // Step 2: Filter approved uploads
@@ -402,7 +400,7 @@ router.get("/activity/hallOfFamePosts/:eventId", async (req, res) => {
 
     // Step 3: Fetch user details for those uploads
     const userIds = approvedUploads.map(u => u.uploadedBy);
-    const users = await USER.find({ _id: { $in: userIds } }).select("_id name email");
+    const users = await CRAFTUSER.find({ _id: { $in: userIds } }).select("_id name email");
 
     // Step 4: Map user info into uploads
     const userMap = new Map();

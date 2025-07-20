@@ -48,6 +48,8 @@ require('./AllModels/craftClubModel/craftjudge')
 require('./AllModels/craftClubModel/craftprinciple')
 require('./AllModels/craftClubModel/craftuser')
 require('./AllModels/craftClubModel/craftcabinate')
+require('./AllModels/craftClubModel/craftaddActivity')
+require('./AllModels/craftClubModel/craftaddCompitition')
 
 
 require('./AllModels/craftClubModel/EditorCraftClub/craftClubDomain')

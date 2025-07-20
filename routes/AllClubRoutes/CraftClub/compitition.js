@@ -12,15 +12,19 @@ const ACTIVITY = mongoose.model("ACTIVITY");
 const CABINATE = mongoose.model("CABINATE");
 const DIRECTOR = mongoose.model("DIRECTOR");
 const ARTCLUB = mongoose.model("ARTCLUB");
-const COMPITITION = mongoose.model("COMPITITION");
-const USER = mongoose.model("USER");
-const JUDGE = mongoose.model("JUDGE");
+
+
+const CRAFTCOMPITITION = mongoose.model("CRAFTCOMPITITION");
+const CRAFTUSER = mongoose.model("CRAFTUSER");
+const CRAFTJUDGE = mongoose.model("CRAFTJUDGE");
 
 
 
 
 
-router.post("/create-compitition", requireLoginPrinciple, async (req, res) => {
+
+
+router.post("/craftcreate-compitition", requireLoginPrinciple, async (req, res) => {
   const { title, desc, pic } = req.body;
 
   if (!title || !desc || !pic ) {
@@ -28,7 +32,7 @@ router.post("/create-compitition", requireLoginPrinciple, async (req, res) => {
   }
 
   try {
-    const event = new COMPITITION({
+    const event = new CRAFTCOMPITITION({
       title,
       desc,
       pic,
@@ -52,8 +56,8 @@ router.post("/create-compitition", requireLoginPrinciple, async (req, res) => {
 
 
 
-router.get("/allCompitition", (req, res) => {
-  COMPITITION.find().then((events) => {
+router.get("/craftallCompitition", (req, res) => {
+  CRAFTCOMPITITION.find().then((events) => {
     res.json(events);
   });
 });
@@ -61,9 +65,9 @@ router.get("/allCompitition", (req, res) => {
 
 
 
-router.get("/getCompitition/:compititionid", async (req, res) => {
+router.get("/craftgetCompitition/:compititionid", async (req, res) => {
   try {
-    const competition = await COMPITITION.findOne({ _id: req.params.compititionid })
+    const competition = await CRAFTCOMPITITION.findOne({ _id: req.params.compititionid })
   .populate("uploads.uploadedBy", "name email")
 
     if (!competition) {
@@ -79,11 +83,11 @@ router.get("/getCompitition/:compititionid", async (req, res) => {
 
 
 
-router.delete("/competition/:id", async (req, res) => {
+router.delete("/craftcompetition/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deletedEvent = await COMPITITION.findByIdAndDelete(id);
+    const deletedEvent = await CRAFTCOMPITITION.findByIdAndDelete(id);
 
     if (!deletedEvent) {
       return res.status(404).json({ error: "Event not found" });
@@ -101,7 +105,7 @@ router.delete("/competition/:id", async (req, res) => {
 
 
 
-router.put("/activity/set-live/:activityID", async (req, res) => {
+router.put("/craftactivity/set-live/:activityID", async (req, res) => {
   try {
     const activityId = req.params.activityID;
     const { isLive } = req.body;
@@ -112,7 +116,7 @@ router.put("/activity/set-live/:activityID", async (req, res) => {
     }
 
     // ✅ Update the field
-    const updated = await COMPITITION.findByIdAndUpdate(
+    const updated = await CRAFTCOMPITITION.findByIdAndUpdate(
       activityId,
       { isLive },
       { new: true }
@@ -135,12 +139,12 @@ router.put("/activity/set-live/:activityID", async (req, res) => {
 
 
 
-router.post("/register-compitition/:activityId", requireLogin, async (req, res) => {
+router.post("/craftregister-compitition/:activityId", requireLogin, async (req, res) => {
   const userId = req.user._id;
   const { activityId } = req.params;
 
   try {
-    const activity = await COMPITITION.findById(activityId);
+    const activity = await CRAFTCOMPITITION.findById(activityId);
 
     if (!activity) {
       return res.status(404).json({ error: "Activity not found" });
@@ -163,12 +167,12 @@ router.post("/register-compitition/:activityId", requireLogin, async (req, res) 
 
 
 
-router.post("/unregister-compitition/:activityId", requireLogin, async (req, res) => {
+router.post("/craftunregister-compitition/:activityId", requireLogin, async (req, res) => {
   const userId = req.user._id;
   const { activityId } = req.params;
 
   try {
-    const activity = await COMPITITION.findById(activityId);
+    const activity = await CRAFTCOMPITITION.findById(activityId);
 
     if (!activity) return res.status(404).json({ error: "Activity not found" });
 
@@ -187,13 +191,13 @@ router.post("/unregister-compitition/:activityId", requireLogin, async (req, res
 });
 
 
-router.post("/upload-photo-compitition/:eventId", requireLogin, async (req, res) => {
+router.post("/craftupload-photo-compitition/:eventId", requireLogin, async (req, res) => {
   try {
     const { pic } = req.body;
     const userId = req.user._id.toString();
     const eventId = req.params.eventId;
 
-    const event = await COMPITITION.findById(eventId);
+    const event = await CRAFTCOMPITITION.findById(eventId);
     if (!event) return res.status(404).json({ error: "Event not found" });
 
 
@@ -220,11 +224,11 @@ router.post("/upload-photo-compitition/:eventId", requireLogin, async (req, res)
   }
 });
 
-router.get("/has-uploaded-compitition/:eventId", requireLogin, async (req, res) => {
+router.get("/crafthas-uploaded-compitition/:eventId", requireLogin, async (req, res) => {
   const userId = req.user._id.toString();
   const eventId = req.params.eventId;
 
-  const event = await COMPITITION.findById(eventId);
+  const event = await CRAFTCOMPITITION.findById(eventId);
   if (!event) return res.status(404).json({ error: "Event not found" });
 
   const hasUploaded = event.uploads.some(
@@ -235,12 +239,12 @@ router.get("/has-uploaded-compitition/:eventId", requireLogin, async (req, res) 
 });
 
 
-router.get("/event-participants-compi/:eventId", async (req, res) => {
+router.get("/craftevent-participants-compi/:eventId", async (req, res) => {
   try {
     const { eventId } = req.params;
 
     // 1. Find the competition by ID and select required fields
-    const event = await COMPITITION.findById(eventId).select("Registrations uploads");
+    const event = await CRAFTCOMPITITION.findById(eventId).select("Registrations uploads");
 
     if (!event) {
       return res.status(404).json({ error: "Event not found" });
@@ -255,7 +259,7 @@ router.get("/event-participants-compi/:eventId", async (req, res) => {
     });
 
     // 3. Fetch all registered users' details
-    const users = await USER.find({ _id: { $in: event.Registrations } })
+    const users = await CRAFTUSER.find({ _id: { $in: event.Registrations } })
       .select("_id name email ip");
 
     // 4. Merge user info with their uploads (if any)
@@ -280,9 +284,9 @@ router.get("/event-participants-compi/:eventId", async (req, res) => {
 
 // -------------------------------------------Priciple-----------------------------------------------------------------------
 
-router.get("/allJudges", async (req, res) => {
+router.get("/craftallJudges", async (req, res) => {
   try {
-    const judges = await JUDGE.find();
+    const judges = await CRAFTJUDGE.find();
     return res.status(200).json(judges);
   } catch (error) {
     console.error("Error fetching judges:", error);
@@ -292,7 +296,7 @@ router.get("/allJudges", async (req, res) => {
 
 
 
-router.post("/assignJudge", async (req, res) => {
+router.post("/craftassignJudge", async (req, res) => {
   const { id, judgeId } = req.body;
 
   if (!id || !judgeId) {
@@ -300,7 +304,7 @@ router.post("/assignJudge", async (req, res) => {
   }
 
   try {
-    const updated = await COMPITITION.findByIdAndUpdate(
+    const updated = await CRAFTCOMPITITION.findByIdAndUpdate(
       id,
       { $addToSet: { judges: judgeId } },
       { new: true }
@@ -316,11 +320,11 @@ router.post("/assignJudge", async (req, res) => {
   }
 });
 
-router.get("/competition/:id/judges", async (req, res) => {
+router.get("/craftcompetition/:id/judges", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const competition = await COMPITITION.findById(id).populate("judges", "name email clubName");
+    const competition = await CRAFTCOMPITITION.findById(id).populate("judges", "name email clubName");
 
     if (!competition) {
       return res.status(404).json({ error: "Competition not found" });
@@ -336,7 +340,7 @@ router.get("/competition/:id/judges", async (req, res) => {
 
 
 
-router.post("/removeJudge", async (req, res) => {
+router.post("/craftremoveJudge", async (req, res) => {
   const { id, judgeId } = req.body;
 
   if (!id || !judgeId) {
@@ -344,7 +348,7 @@ router.post("/removeJudge", async (req, res) => {
   }
 
   try {
-    const updatedCompetition = await COMPITITION.findByIdAndUpdate(
+    const updatedCompetition = await CRAFTCOMPITITION.findByIdAndUpdate(
       id,
       { $pull: { judges: judgeId } },
       { new: true }
@@ -371,11 +375,11 @@ router.post("/removeJudge", async (req, res) => {
 
 // -------------------------------------------------JUDGE-----------------------------------------------------------------
 
-router.get("/competitions/judge/:judgeId", async (req, res) => {
+router.get("/craftcompetitions/judge/:judgeId", async (req, res) => {
   const { judgeId } = req.params;
 
   try {
-    const competitions = await COMPITITION.find({
+    const competitions = await CRAFTCOMPITITION.find({
       isLive: true,
       judges: judgeId, // match if judgeId is in the array
     })
@@ -393,7 +397,7 @@ router.get("/competitions/judge/:judgeId", async (req, res) => {
 
 
 
-router.patch("/assign-mark", async (req, res) => {
+router.patch("/craftassign-mark", async (req, res) => {
   const { uploadId, judgeId, mark } = req.body;
 
   if (!uploadId || !judgeId || typeof mark !== "number") {
@@ -420,7 +424,7 @@ router.patch("/assign-mark", async (req, res) => {
   }
 
   try {
-    const updated = await COMPITITION.updateOne(
+    const updated = await CRAFTCOMPITITION.updateOne(
       { "uploads._id": uploadId },
       { $set: { [`uploads.$.${fieldToUpdate}`]: mark } }
     );
@@ -437,7 +441,7 @@ router.patch("/assign-mark", async (req, res) => {
 });
 
 
-router.get("/:competitionId/upload/:uploadId/total-score", async (req, res) => {
+router.get("/:competitionId/craftupload/:uploadId/total-score", async (req, res) => {
   const { competitionId, uploadId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(competitionId) || !mongoose.Types.ObjectId.isValid(uploadId)) {
@@ -445,7 +449,7 @@ router.get("/:competitionId/upload/:uploadId/total-score", async (req, res) => {
   }
 
   try {
-    const competition = await COMPITITION.findById(competitionId);
+    const competition = await CRAFTCOMPITITION.findById(competitionId);
 
     if (!competition) {
       return res.status(404).json({ error: "Competition not found" });
@@ -481,7 +485,7 @@ router.get("/:competitionId/upload/:uploadId/total-score", async (req, res) => {
 });
 
 
-router.get("/:competitionId/uploads/total-scores", async (req, res) => {
+router.get("/:competitionId/craftuploads/total-scores", async (req, res) => {
   const { competitionId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(competitionId)) {
@@ -489,7 +493,7 @@ router.get("/:competitionId/uploads/total-scores", async (req, res) => {
   }
 
   try {
-    const competition = await COMPITITION.findById(competitionId);
+    const competition = await CRAFTCOMPITITION.findById(competitionId);
 
     if (!competition) {
       return res.status(404).json({ error: "Competition not found" });
@@ -520,7 +524,7 @@ router.get("/:competitionId/uploads/total-scores", async (req, res) => {
 
 
 
-router.get("/:competitionId/results", async (req, res) => {
+router.get("/:competitionId/craftresults", async (req, res) => {
   const { competitionId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(competitionId)) {
@@ -528,7 +532,7 @@ router.get("/:competitionId/results", async (req, res) => {
   }
 
   try {
-    const competition = await COMPITITION.findById(competitionId).populate("uploads.uploadedBy", "name email");
+    const competition = await CRAFTCOMPITITION.findById(competitionId).populate("uploads.uploadedBy", "name email");
 
     if (!competition) {
       return res.status(404).json({ error: "Competition not found" });
@@ -567,7 +571,7 @@ router.get("/:competitionId/results", async (req, res) => {
 });
 
 
-router.put("/:competitionId/generate-result", async (req, res) => {
+router.put("/:competitionId/craftgenerate-result", async (req, res) => {
   const { competitionId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(competitionId)) {
@@ -575,7 +579,7 @@ router.put("/:competitionId/generate-result", async (req, res) => {
   }
 
   try {
-    const updatedComp = await COMPITITION.findByIdAndUpdate(
+    const updatedComp = await CRAFTCOMPITITION.findByIdAndUpdate(
       competitionId,
       { $set: { resultLive: true } },
       { new: true }
@@ -597,7 +601,7 @@ router.put("/:competitionId/generate-result", async (req, res) => {
 });
 
 
-router.get("/competitions/:id", async (req, res) => {
+router.get("/craftcompetitions/:id", async (req, res) => {
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -605,7 +609,7 @@ router.get("/competitions/:id", async (req, res) => {
   }
 
   try {
-    const competition = await COMPITITION.findById(id)
+    const competition = await CRAFTCOMPITITION.findById(id)
       .populate("postedBy", "name email")
       .populate("Registrations", "name email")
       .populate("judges", "name email")
