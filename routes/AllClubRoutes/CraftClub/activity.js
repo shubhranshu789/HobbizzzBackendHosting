@@ -10,7 +10,7 @@ const requireLoginUser = require("../../../middleWares/requireUser");
 // const CABINATE = mongoose.model("CABINATE");
 const CRAFTACTIVITY = mongoose.model("CRAFTACTIVITY");
 const ARTCLUB = mongoose.model("ARTCLUB");
-const CRAFTUSER = mongoose.model("CRAFTUSER");
+const USER = mongoose.model("USER");
 
 
 router.post("/craftcreate-activity", requireLogin, async (req, res) => {
@@ -45,7 +45,7 @@ router.post("/craftcreate-activity", requireLogin, async (req, res) => {
 });
 
 
-router.get("/craftallActivities", requireLogin, (req, res) => {
+router.get("/craftallActivities", (req, res) => {
   CRAFTACTIVITY.find().then((events) => {
     res.json(events);
   });
@@ -177,7 +177,7 @@ router.get("/craftevent-participants/:eventId", requireLogin, async (req, res) =
     });
 
     // Fetch user details for registered users
-    const users = await CRAFTUSER.find({ _id: { $in: registrations } })
+    const users = await USER.find({ _id: { $in: registrations } })
       .select("_id name email ip");
 
     const participants = users.map(user => ({
@@ -209,7 +209,7 @@ router.get("/craftevent-participants-user/:eventId", requireLoginUser, async (re
     });
 
     // Fetch user details for registered users
-    const users = await CRAFTUSER.find({ _id: { $in: registrations } })
+    const users = await USER.find({ _id: { $in: registrations } })
       .select("_id name email ip");
 
     const participants = users.map(user => {
@@ -302,7 +302,7 @@ router.get("/craftactivity/approved-uploads/:eventId", async (req, res) => {
 
     // Step 3: Fetch user details for those uploads
     const userIds = approvedUploads.map(u => u.uploadedBy);
-    const users = await CRAFTUSER.find({ _id: { $in: userIds } }).select("_id name email");
+    const users = await USER.find({ _id: { $in: userIds } }).select("_id name email");
 
     // Step 4: Map user info into uploads
     const userMap = new Map();
@@ -400,7 +400,7 @@ router.get("/craftactivity/hallOfFamePosts/:eventId", async (req, res) => {
 
     // Step 3: Fetch user details for those uploads
     const userIds = approvedUploads.map(u => u.uploadedBy);
-    const users = await CRAFTUSER.find({ _id: { $in: userIds } }).select("_id name email");
+    const users = await USER.find({ _id: { $in: userIds } }).select("_id name email");
 
     // Step 4: Map user info into uploads
     const userMap = new Map();
@@ -427,6 +427,35 @@ router.get("/craftactivity/hallOfFamePosts/:eventId", async (req, res) => {
   }
 });
 
+
+
+router.get("/crafthall-of-fame", async (req, res) => {
+  try {
+    const activities = await CRAFTACTIVITY.find({})
+      .populate("uploads.uploadedBy", "name email"); // 👈 this adds user name/email
+
+    const hallOfFameUploads = [];
+
+    activities.forEach(activity => {
+      const matchingUploads = activity.uploads.filter(upload => upload.isHallofFame === true);
+
+      matchingUploads.forEach(upload => {
+        hallOfFameUploads.push({
+          ...upload.toObject(),
+          activityId: activity._id,
+          activityTitle: activity.title,
+          category: activity.category,
+          uploadedBy: upload.uploadedBy, // will now include name + email
+        });
+      });
+    });
+
+    res.json(hallOfFameUploads);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
 
