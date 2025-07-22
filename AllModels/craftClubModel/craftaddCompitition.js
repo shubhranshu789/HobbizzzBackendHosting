@@ -4,7 +4,7 @@ const { ObjectId } = mongoose.Schema.Types;
 const uploadSchema = new mongoose.Schema(
   {
     pic: { type: String, required: true },
-    uploadedBy: { type: ObjectId, ref: "USER", required: true },
+    uploadedBy: { type: ObjectId, ref: "CRAFTUSER", required: true },
     // isApproved: { type: Boolean, default: false },
     judge1: { type: Number, default: 0 },
     judge2: { type: Number, default: 0 },
@@ -21,10 +21,10 @@ const activitySchema = new mongoose.Schema(
     desc: { type: String, required: true },
     pic: { type: String, required: true }, 
     postedBy: [{ type: ObjectId, ref: "DIRECTOR" }],
-    Registrations: [{ type: ObjectId, ref: "USER" }],
+    Registrations: [{ type: ObjectId, ref: "CRAFTUSER" }],
     isLive: { type: Boolean, default: false },
     resultLive: { type: Boolean, default: false },
-    judges: [{ type: ObjectId, ref: "JUDGE" }],
+    judges: [{ type: ObjectId, ref: "CRAFTJUDGE" }],
     uploads: [uploadSchema], 
   },
   { timestamps: true }

@@ -7,8 +7,8 @@ const requireLogin = require("../middleWares/requireLogin");
 const requireLoginUser = require("../middleWares/requireLoginUser");
 
 // const CABINATE = mongoose.model("CABINATE");
-const ACTIVITY = mongoose.model("ACTIVITY");
-const CABINATE = mongoose.model("CABINATE");
+const ACTIVITY = mongoose.model("CRAFTACTIVITY");
+const CABINATE = mongoose.model("CRAFTCABINATE");
 const DIRECTOR = mongoose.model("DIRECTOR");
 
 

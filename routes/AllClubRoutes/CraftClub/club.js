@@ -5,14 +5,14 @@ const router = express.Router();
 const bcryptjs = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 
-const ARTCLUB = mongoose.model("ARTCLUB");
+const CRAFTCLUB = mongoose.model("CRAFTCLUB");
 const {Jwt_secret} = require("../../../keys");
-const requireLoginUser = require("../../../middleWares/requireLoginUser");
+const requireLoginUserCraft = require("../../../middleWares/requireLoginUserCraft");
 const requireLogin = require("../../../middleWares/requireLogin");
-const CABINATE = mongoose.model("CABINATE");
+const CABINATE = mongoose.model("CRAFTCABINATE");
 const DIRECTOR = mongoose.model("DIRECTOR");
-const SCHOOL = mongoose.model("SCHOOL");
-const USER = mongoose.model("USER");
+const SCHOOL = mongoose.model("CRAFTSCHOOL");
+const USER = mongoose.model("CRAFTUSER");
 
 
 
@@ -21,7 +21,7 @@ const USER = mongoose.model("USER");
 //===========================================================================================================
 
 
-router.put("/artclub/requestjoin", requireLoginUser, async (req, res) => {
+router.put("/craftclub/requestjoin", requireLoginUserCraft, async (req, res) => {
   try {
     const { district } = req.query;
 
@@ -30,13 +30,13 @@ router.put("/artclub/requestjoin", requireLoginUser, async (req, res) => {
     }
 
     // Find the club by district
-    const club = await ARTCLUB.findOne({ district });
+    const club = await CRAFTCLUB.findOne({ district });
     if (!club) {
-      return res.status(404).json({ error: `No art club found for district: ${district}` });
+      return res.status(404).json({ error: `No craft club found for district: ${district}` });
     }
 
     // Add user to memberRequests
-    const updatedClub = await ARTCLUB.findByIdAndUpdate(
+    const updatedClub = await CRAFTCLUB.findByIdAndUpdate(
       club._id,
       { $addToSet: { memberRequests: req.user._id } }, // avoid duplicates
       { new: true }
@@ -57,7 +57,7 @@ router.put("/artclub/requestjoin", requireLoginUser, async (req, res) => {
 
 
 
-router.put("/artclub/requestjoinforambassador", requireLoginUser, async (req, res) => {
+router.put("/craftclub/requestjoinforambassador", requireLoginUserCraft, async (req, res) => {
   try {
     const { district } = req.query;
     if (!district) {
@@ -65,12 +65,12 @@ router.put("/artclub/requestjoinforambassador", requireLoginUser, async (req, re
     }
 
     // Find the club by district
-    const club = await ARTCLUB.findOne({ district });
+    const club = await CRAFTCLUB.findOne({ district });
     if (!club) {
       return res.status(404).json({ error: `No art club found for district: ${district}` });
     }
 
-    const updatedClub = await ARTCLUB.findByIdAndUpdate(
+    const updatedClub = await CRAFTCLUB.findByIdAndUpdate(
       club._id,
       { $addToSet: { ambassadorRequests: req.user._id } }, // avoid duplicates
       { new: true }
@@ -85,12 +85,21 @@ router.put("/artclub/requestjoinforambassador", requireLoginUser, async (req, re
   }
 });
 
-router.put("/artclub/withdrawjoin", requireLoginUser, async (req, res) => {
+router.put("/craftclub/withdrawjoin", requireLoginUserCraft, async (req, res) => {
   try {
-    const clubId = "6852b1de00a4d1168f1465e4";
+    const { district } = req.query;
+    if (!district) {
+      return res.status(400).json({ error: "District is required in query params" });
+    }
 
-    const updatedClub = await ARTCLUB.findByIdAndUpdate(
-      clubId,
+    // Find the club by district
+    const club = await CRAFTCLUB.findOne({ district });
+    if (!club) {
+      return res.status(404).json({ error: `No art club found for district: ${district}` });
+    }
+
+    const updatedClub = await CRAFTCLUB.findByIdAndUpdate(
+      club._id,
       { $pull: { memberRequests: req.user._id } },
       { new: true }
     );
@@ -255,7 +264,7 @@ router.put("/artclub/withdrawjoin", requireLoginUser, async (req, res) => {
 // for head==================================================================================================
 
 
-router.get("/artclub/head-request", async (req, res) => {
+router.get("/craftclub/head-request", async (req, res) => {
   const { district } = req.query;
 
   if (!district) {
@@ -263,7 +272,7 @@ router.get("/artclub/head-request", async (req, res) => {
   }
 
   try {
-     const club = await ARTCLUB.findOne({ district }).populate({
+     const club = await CRAFTCLUB.findOne({ district }).populate({
       path: "memberRequests",
       select: "name email district school state createdAt"
     });
@@ -280,7 +289,7 @@ router.get("/artclub/head-request", async (req, res) => {
 });
 
 // Set head for a club
-router.put("/artclub/approve-head", async (req, res) => {
+router.put("/craftclub/approve-head", async (req, res) => {
   try {
     const userId = req.query.userid;
     const district = req.query.district;
@@ -290,7 +299,7 @@ router.put("/artclub/approve-head", async (req, res) => {
     }
 
     // Find club by district and update councilRequests and council
-    const updatedClub = await ARTCLUB.findOneAndUpdate(
+    const updatedClub = await CRAFTCLUB.findOneAndUpdate(
       { district: district },
       {
         $pull: { memberRequests: userId },
@@ -306,7 +315,7 @@ router.put("/artclub/approve-head", async (req, res) => {
     // Update the user's club field to 'artclub'
     const updatedUser = await CABINATE.findByIdAndUpdate(
       userId,
-      { club: "artclub" },
+      { club: "craftclub" },
       { new: true }
     );
 
@@ -322,7 +331,7 @@ router.put("/artclub/approve-head", async (req, res) => {
 });
 
 
-router.put("/artclub/disapprove-head", async (req, res) => {
+router.put("/craftclub/disapprove-head", async (req, res) => {
   try {
     const userId = req.query.userid;
     const district = req.query.district;
@@ -333,7 +342,7 @@ router.put("/artclub/disapprove-head", async (req, res) => {
 
 
 
-    const updatedClub = await ARTCLUB.findOneAndUpdate(
+    const updatedClub = await CRAFTCLUB.findOneAndUpdate(
       { district: district },
       { $pull: { memberRequests: userId } },
       { new: true }
@@ -347,13 +356,13 @@ router.put("/artclub/disapprove-head", async (req, res) => {
 });
 
 
-router.get("/artclub/gethead", async (req, res) => {
+router.get("/craftclub/gethead", async (req, res) => {
   const { district } = req.query;
   if (!district) {
     return res.status(400).json({ error: "District parameter is required" });
   }
   try {
-    const clubDoc = await ARTCLUB.findOne({ district })
+    const clubDoc = await CRAFTCLUB.findOne({ district })
       .populate("head", "name email avatar school");
 
     if (!clubDoc) {
@@ -381,7 +390,7 @@ router.get("/artclub/gethead", async (req, res) => {
 //=========================================================================================================
 // for ambassadors==================================================================================================
 
-router.get("/artclub/ambassador-requests", requireLoginUser, async (req, res) => {
+router.get("/craftclub/ambassador-requests", requireLoginUserCraft, async (req, res) => {
   const { district } = req.query;
 
   if (!district) {
@@ -389,7 +398,7 @@ router.get("/artclub/ambassador-requests", requireLoginUser, async (req, res) =>
   }
 
   try {
-    const club = await ARTCLUB.findOne({ district }).populate({path: "ambassadorRequests",select: "name email district state school createdAt"
+    const club = await CRAFTCLUB.findOne({ district }).populate({path: "ambassadorRequests",select: "name email district state school createdAt"
     });
 
     if (!club) {
@@ -403,7 +412,7 @@ router.get("/artclub/ambassador-requests", requireLoginUser, async (req, res) =>
   }
 });
 
-router.put("/artclub/approve-ambassador", requireLoginUser, async (req, res) => {
+router.put("/craftclub/approve-ambassador", requireLoginUserCraft, async (req, res) => {
   try {
     const userId = req.query.userid;
     const district = req.query.district;
@@ -421,7 +430,7 @@ router.put("/artclub/approve-ambassador", requireLoginUser, async (req, res) => 
     const existingSchool = await SCHOOL.findOne({
       school: schoolName,
       district: district,
-      club: 'artclub'
+      club: 'craftclub'
     });
 
     if (existingSchool) {
@@ -432,13 +441,13 @@ router.put("/artclub/approve-ambassador", requireLoginUser, async (req, res) => 
     const newSchool = await SCHOOL.create({
       school: schoolName,
       district: district,
-      club: 'artclub',
+      club: 'craftclub',
       ambassador: userId,
       captain: null
     });
 
     // Find club by district and update ambassadorRequests and council
-    const updatedClub = await ARTCLUB.findOneAndUpdate(
+    const updatedClub = await CRAFTCLUB.findOneAndUpdate(
       { district: district },
       {
         $pull: { ambassadorRequests: userId },
@@ -454,7 +463,7 @@ router.put("/artclub/approve-ambassador", requireLoginUser, async (req, res) => 
     // Update the user's club field to 'artclub'
     const updatedUser = await CABINATE.findByIdAndUpdate(
       userId,
-      { club: "artclub" },
+      { club: "craftclub" },
       { new: true }
     );
 
@@ -471,7 +480,7 @@ router.put("/artclub/approve-ambassador", requireLoginUser, async (req, res) => 
 
 
 
-router.put("/artclub/disapprove-ambassador", requireLogin, async (req, res) => {
+router.put("/craftclub/disapprove-ambassador", requireLoginUserCraft, async (req, res) => {
   try {
     const userId = req.query.userid;
     const district = req.query.district;
@@ -482,7 +491,7 @@ router.put("/artclub/disapprove-ambassador", requireLogin, async (req, res) => {
 
 
 
-    const updatedClub = await ARTCLUB.findOneAndUpdate(
+    const updatedClub = await CRAFTCLUB.findOneAndUpdate(
       { district: district },
       { $pull: { ambassadorRequests: userId } },
       { new: true }
@@ -496,9 +505,9 @@ router.put("/artclub/disapprove-ambassador", requireLogin, async (req, res) => {
 });
 
 
-router.get("/artclub/statusambassador", requireLoginUser, async (req, res) => {
+router.get("/craftclub/statusambassador", async (req, res) => {
   try {
-    const club = await ARTCLUB.findOne()
+    const club = await CRAFTCLUB.findOne()
       .populate("ambassadors", "name email avatar") // populate selected fields
       .select("ambassadors ambassadorRequests");
 
@@ -520,11 +529,11 @@ router.get("/artclub/statusambassador", requireLoginUser, async (req, res) => {
 
 
 
-router.get("/artclub/status", requireLogin, async (req, res) => {
+router.get("/craftclub/status", async (req, res) => {
   try {
     const clubId = "6852b1de00a4d1168f1465e4";
 
-    const club = await ARTCLUB.findById(clubId)
+    const club = await CRAFTCLUB.findById(clubId)
       .populate("members", "name email avatar district") // populate selected fields
       .select("members memberRequests");
 
@@ -538,7 +547,7 @@ router.get("/artclub/status", requireLogin, async (req, res) => {
 });
 
 // GET /artClub/info?district=Varanasi
-router.get("/artclub/info", async (req, res) => {
+router.get("/craftclub/info", async (req, res) => {
   const { district } = req.query;
 
   if (!district) {
@@ -546,16 +555,16 @@ router.get("/artclub/info", async (req, res) => {
   }
 
   try {
-    const club = await ARTCLUB.findOne({ district });
+    const club = await CRAFTCLUB.findOne({ district });
 
     if (!club) {
       return res.status(404).json({ error: "Art club not found for this district" });
     }
     // Fetch schools for this district and artclub
-    const schools = await SCHOOL.find({ district, club: 'artclub' });
+    const schools = await SCHOOL.find({ district, club: 'craftclub' });
 
     // Fetch students for this district and artclub
-    const students = await USER.find({ district, club: 'artclub' });
+    const students = await USER.find({ district, club: 'craftclub' });
 
 
     // Prepare response object
@@ -576,7 +585,7 @@ router.get("/artclub/info", async (req, res) => {
 });
 
 
-router.get("/artclub/can-manage-council", requireLoginUser, async (req, res) => {
+router.get("/craftclub/can-manage-council", requireLoginUserCraft, async (req, res) => {
   try {
     const clubId = "6852b1de00a4d1168f1465e4"; // or pass dynamically
     const userId = req.user._id;

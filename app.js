@@ -50,6 +50,9 @@ require('./AllModels/craftClubModel/craftuser')
 require('./AllModels/craftClubModel/craftcabinate')
 require('./AllModels/craftClubModel/craftaddActivity')
 require('./AllModels/craftClubModel/craftaddCompitition')
+require('./AllModels/craftClubModel/craftschool')
+require('./AllModels/craftClubModel/localevents')
+require('./AllModels/craftClubModel/clubs/craftClubs')
 
 
 require('./AllModels/craftClubModel/EditorCraftClub/craftClubDomain')
@@ -68,16 +71,16 @@ require('./AllModels/craftClubModel/EditorCraftClub/craftCournal')
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(require('./routes/auth'))
-app.use(require('./routes/activity'))
+app.use(require('./routes/AllClubRoutes/ArtClub/auth'))
+app.use(require('./routes/AllClubRoutes/ArtClub/activity'))
+app.use(require('./routes/AllClubRoutes/ArtClub/school'))
+app.use(require('./routes/AllClubRoutes/ArtClub/user'))
+app.use(require('./routes/AllClubRoutes/ArtClub/artclub'))
+app.use(require('./routes/AllClubRoutes/ArtClub/compitition'))
+app.use(require('./routes/AllClubRoutes/ArtClub/editorArtClub'))
+
+
 app.use(require('./routes/chapter'))
-app.use(require('./routes/school'))
-app.use(require('./routes/user'))
-app.use(require('./routes/artclub'))
-app.use(require('./routes/compitition'))
-app.use(require('./routes/editorArtClub'))
-
-
 
 
 
@@ -90,6 +93,7 @@ app.use(require('./routes/AllClubRoutes/CraftClub/club'))
 app.use(require('./routes/AllClubRoutes/CraftClub/compitition'))
 app.use(require('./routes/AllClubRoutes/CraftClub/editor'))
 app.use(require('./routes/AllClubRoutes/CraftClub/editorCraftClub'))
+app.use(require('./routes/AllClubRoutes/CraftClub/school'))
 
 
 // ----------------------------------------------------------------------------------------------
