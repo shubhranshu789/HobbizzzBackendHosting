@@ -15,7 +15,7 @@ const JUDGE = mongoose.model("JUDGE");
 const PRINCIPLE = mongoose.model("PRINCIPLE");
 
 
-const {Jwt_secret} = require("../keys");
+const {Jwt_secret} = require("../../../keys");
 
 
 
@@ -124,7 +124,7 @@ router.post("/director-signup", async (req, res) => {
       ip,
       state,
       district,
-      club: club.toUpperCase()
+      club: club
     });
 
     const savedDirector = await director.save();
