@@ -88,7 +88,6 @@ app.use(require('./routes/chapter'))
 // -----------------------------------------CraftClubRoute-----------------------------------------------------
 app.use(require('./routes/AllClubRoutes/CraftClub/auth'))
 app.use(require('./routes/AllClubRoutes/CraftClub/activity'))
-app.use(require('./routes/AllClubRoutes/CraftClub/chapter'))
 app.use(require('./routes/AllClubRoutes/CraftClub/club'))
 app.use(require('./routes/AllClubRoutes/CraftClub/compitition'))
 app.use(require('./routes/AllClubRoutes/CraftClub/editor'))
