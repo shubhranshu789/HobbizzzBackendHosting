@@ -3,12 +3,11 @@ const mongoose = require("mongoose");
 const router = express.Router();
 const multer = require("multer");
 const axios = require("axios");
-const requireLogin = require("../../../middleWares/requireLogin");
+
 const requireLoginUser = require("../../../middleWares/requireLoginUser");
 
 // const CABINATE = mongoose.model("CABINATE");
 const ACTIVITY = mongoose.model("ACTIVITY");
-const CABINATE = mongoose.model("CABINATE");
 const DIRECTOR = mongoose.model("DIRECTOR");
 
 

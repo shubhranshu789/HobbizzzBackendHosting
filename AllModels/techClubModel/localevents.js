@@ -10,8 +10,8 @@ const chapterSchema = new mongoose.Schema(
     venue: { type: String, required: true },
     club: { type: String, required: true },
     district: { type: String, required: true },
-    head: { type: ObjectId, ref: "CRAFTCABINATE", required: false },
-    director: { type: ObjectId, ref: "CRAFTDIRECTOR", required: false },
+    head: { type: ObjectId, ref: "TECHCABINATE", required: false },
+    director: { type: ObjectId, ref: "TECHDIRECTOR", required: false },
     
     status: {
       type: String,
@@ -22,4 +22,4 @@ const chapterSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("CRAFTLOCALEVENT", chapterSchema);
+module.exports = mongoose.model("TECHLOCALEVENT", chapterSchema);

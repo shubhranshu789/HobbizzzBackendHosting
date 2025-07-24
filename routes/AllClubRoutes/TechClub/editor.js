@@ -4,21 +4,20 @@ const router = express.Router()
 
 const bcryptjs = require('bcryptjs');
 const jwt = require("jsonwebtoken")
-
 const {Jwt_secret} = require("../../../keys");
 
-const CLUBNEWS = mongoose.model("CRAFTCLUBNEWS");
-const CLUBJOURNAL = mongoose.model("CRAFTCLUBJOURNAL");
-const CLUBDOMAIN = mongoose.model("CRAFTCLUBDOMAIN");
-const GALLERY = mongoose.model("CRAFTGALLERY");
-const HERITAGE = mongoose.model("CRAFTHERITAGE");
-const CALENDAR = mongoose.model("CRAFTCALENDAR");
+const CLUBNEWS = mongoose.model("TECHCLUBNEWS");
+const CLUBJOURNAL = mongoose.model("TECHCLUBJOURNAL");
+const TECHCLUBDOMAIN = mongoose.model("TECHCLUBDOMAIN");
+const GALLERY = mongoose.model("TECHGALLERY");
+const HERITAGE = mongoose.model("TECHHERITAGE");
+const CALENDAR = mongoose.model("TECHCALENDAR");
 
 
 // const requireLoginUser = require("../middleWares/requireLoginUser");
 
 // POST /api/news — Create news
-router.post('/clubnews', async (req, res) => {
+router.post('/techclubnews', async (req, res) => {
   try {
     const newsData = req.body;
 
@@ -39,7 +38,7 @@ router.post('/clubnews', async (req, res) => {
   }
 });
 
-router.post('/clubjournal', async (req, res) => {
+router.post('/techclubjournal', async (req, res) => {
   try {
     const newsData = req.body;
 
@@ -61,11 +60,11 @@ router.post('/clubjournal', async (req, res) => {
 });
 
 
-router.post('/clubdomain', async (req, res) => {
+router.post('/techclubdomain', async (req, res) => {
   try {
     const newsData = req.body;
 
-    const newNews = new CLUBDOMAIN(newsData);
+    const newNews = new TECHCLUBDOMAIN(newsData);
     await newNews.save();
 
     res.status(201).json({
@@ -83,7 +82,7 @@ router.post('/clubdomain', async (req, res) => {
 });
 
 
-router.get('/clubnewsviewallpost', async (req, res) => {
+router.get('/techclubnewsviewallpost', async (req, res) => {
   try {
     const allNews = await CLUBNEWS.find().sort({ publishedAt: -1 }); // Latest first
     res.status(200).json({
@@ -101,7 +100,7 @@ router.get('/clubnewsviewallpost', async (req, res) => {
 });
 
 
-router.get('/clubjpurnalviewallpost', async (req, res) => {
+router.get('/techclubjpurnalviewallpost', async (req, res) => {
   try {
     const allNews = await CLUBJOURNAL.find().sort({ publishedAt: -1 }); // Latest first
     res.status(200).json({
@@ -119,9 +118,9 @@ router.get('/clubjpurnalviewallpost', async (req, res) => {
 });
 
 
-router.get('/clubdomainviewallpost', async (req, res) => {
+router.get('/techclubdomainviewallpost', async (req, res) => {
   try {
-    const allNews = await CLUBDOMAIN.find().sort({ publishedAt: -1 }); // Latest first
+    const allNews = await TECHCLUBDOMAIN.find().sort({ publishedAt: -1 }); // Latest first
     res.status(200).json({
       success: true,
       count: allNews.length,
@@ -139,7 +138,7 @@ router.get('/clubdomainviewallpost', async (req, res) => {
 
 
 
-router.get("/artJournal/:id", async (req, res) => {
+router.get("/techJournal/:id", async (req, res) => {
   try {
     const journalId = req.params.id;
 
@@ -156,7 +155,7 @@ router.get("/artJournal/:id", async (req, res) => {
 });
 
 
-router.get("/artNews/:id", async (req, res) => {
+router.get("/techNews/:id", async (req, res) => {
   try {
     const journalId = req.params.id;
 
@@ -178,7 +177,7 @@ router.get("/artNews/:id", async (req, res) => {
 // -----------------------------------------GALLERY-----------------------------------------------------------
 
 
-router.post('/gallerypost', async (req, res) => {
+router.post('/techgallerypost', async (req, res) => {
   try {
     const { title, imageUrl } = req.body;
     if (!title || !imageUrl) {
@@ -195,7 +194,7 @@ router.post('/gallerypost', async (req, res) => {
 });
 
 //  GET: API FOR IMAGE GALLERY
-router.get('/viewgallerypost', async (req, res) => {
+router.get('/techviewgallerypost', async (req, res) => {
   try {
     const images = await  GALLERY.find().sort({ createdAt: -1 }); // latest first
     res.status(200).json(images);
@@ -215,7 +214,7 @@ router.get('/viewgallerypost', async (req, res) => {
 // -------------------------------------------------HERITAGE-----------------------------------------------------------
 
 
-router.post('/heritage', async (req, res) => {
+router.post('/techheritage', async (req, res) => {
   try {
     const { title, category, origin, imageUrl, description, period, tags } = req.body;
 
@@ -248,7 +247,7 @@ router.post('/heritage', async (req, res) => {
 
 
 // GET: API FOR HALL OF FAME
-router.get('/heritagegetallpost', async (req, res) => {
+router.get('/techheritagegetallpost', async (req, res) => {
   try {
     const hallOfFame = await HERITAGE.find().sort({ publishedAt: -1 }); // Latest first
     res.status(200).json({
@@ -266,7 +265,7 @@ router.get('/heritagegetallpost', async (req, res) => {
 });
 
 
-router.get("/artHeritage/:id", async (req, res) => {
+router.get("/techHeritage/:id", async (req, res) => {
   try {
     const journalId = req.params.id;
 

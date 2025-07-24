@@ -4,9 +4,7 @@ const router = express.Router();
 
 const requireLoginUser = require("../../../middleWares/requireLoginUserCraft");
 
-const DIRECTOR = mongoose.model("DIRECTOR");
-const LOCALEVENT= mongoose.model("LOCALEVENT");
-const CRAFTCLUB= mongoose.model("CRAFTCLUB");
+
 const SCHOOL = mongoose.model("CRAFTSCHOOL");
 const USER = mongoose.model("CRAFTUSER");
 

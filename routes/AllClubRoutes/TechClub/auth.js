@@ -4,23 +4,19 @@ const router = express.Router()
 
 const bcryptjs = require('bcryptjs');
 const jwt = require("jsonwebtoken")
-
-
-const CABINATE = mongoose.model("CABINATE");
-const DIRECTOR = mongoose.model("DIRECTOR");
-const EDITOR = mongoose.model("EDITOR");
-const PRINCIPLE = mongoose.model("PRINCIPLE");
-
-
-
 const {Jwt_secret} = require("../../../keys");
 
 
+const TECHCABINATE = mongoose.model("TECHCABINATE");
+const TECHDIRECTOR = mongoose.model("TECHDIRECTOR");
+const TECHEDITOR = mongoose.model("TECHEDITOR");
+const TECHPRINCIPLE = mongoose.model("TECHPRINCIPLE");
 
 
 
 
-router.post("/cabinate-signup" , (req,res)=> {
+
+router.post("/TECHCABINATE-signup" , (req,res)=> {
     const {name , password ,email , state , district , school} = req.body;
     const ip = req.headers['cf-connecting-ip'] ||
                 req.headers['x-real-ip'] ||
@@ -32,14 +28,14 @@ router.post("/cabinate-signup" , (req,res)=> {
         return res.status(422).json({error : "Please add all the fields"})
     }
 
-    CABINATE.findOne({$or : [{email : email} ]}).then((savedUser) => {
+    TECHCABINATE.findOne({$or : [{email : email} ]}).then((savedUser) => {
         if(savedUser){
             return res.status(422).json({error : "user already exist with that email or userName"})
         }
 
 
         bcryptjs.hash(password , 12).then((hashedPassword) => {
-            const teacher = new CABINATE ({
+            const teacher = new TECHCABINATE ({
                 name , 
                 email,    
                 password:hashedPassword, //hiding password,
@@ -58,14 +54,14 @@ router.post("/cabinate-signup" , (req,res)=> {
 
 
 
-router.post("/cabinate-signin" , (req , res) => {
+router.post("/TECHCABINATE-signin" , (req , res) => {
     const {email , password} = req.body;
 
     if(!email || !password){
         return res.status(422).json({error: "please add all the fields"})
     }
 
-    CABINATE.findOne({email:email}).then((savedUser) => {
+    TECHCABINATE.findOne({email:email}).then((savedUser) => {
         if(!savedUser){
             return res.status(422).json({error:"Invalid Email"})
         }
@@ -88,8 +84,8 @@ router.post("/cabinate-signin" , (req , res) => {
 
 
 
-router.post("/director-signup", async (req, res) => {
-  const { name, password, email, state, district, club } = req.body;
+router.post("/TECHDIRECTOR-signup", async (req, res) => {
+  const { name, password, email, state, district, clubName } = req.body;
 
   const ip =
     req.headers["cf-connecting-ip"] ||
@@ -98,13 +94,13 @@ router.post("/director-signup", async (req, res) => {
     req.socket.remoteAddress ||
     "";
 
-  if (!name || !password || !email || !state || !district || !club) {
+  if (!name || !password || !email || !state || !district || !clubName) {
     return res.status(422).json({ error: "Please add all the fields" });
   }
 
   try {
-    const savedUser = await DIRECTOR.findOne({
-      $or: [{ email: email }, { club: club }]
+    const savedUser = await TECHDIRECTOR.findOne({
+      $or: [{ email: email }, { clubName: clubName }]
     });
 
     if (savedUser) {
@@ -115,21 +111,21 @@ router.post("/director-signup", async (req, res) => {
 
     const hashedPassword = await bcryptjs.hash(password, 12);
 
-    const director = new DIRECTOR({
+    const director = new TECHDIRECTOR({
       name,
       email,
       password: hashedPassword,
       ip,
       state,
       district,
-      club: club
+      clubName: clubName.toUpperCase()
     });
 
     const savedDirector = await director.save();
 
-    if (club.toUpperCase() === "ART") {
-      const artClubId = "684a8c32d27f1ad8681187d0";
-      await ARTCLUB.findByIdAndUpdate(artClubId, {
+    if (clubName.toUpperCase() === "TECH") {
+      const techClubId = "684a8c32d27f1ad8681187d0";
+      await TECHCLUB.findByIdAndUpdate(techClubId, {
         $push: { director: savedDirector._id }
       });
     }
@@ -142,14 +138,14 @@ router.post("/director-signup", async (req, res) => {
 });
 
 
-router.post("/director-signin" , (req , res) => {
+router.post("/TECHDIRECTOR-signin" , (req , res) => {
     const {email , password} = req.body;
 
     if(!email || !password){
         return res.status(422).json({error: "please add all the fields"})
     }
 
-    DIRECTOR.findOne({email:email}).then((savedUser) => {
+    TECHDIRECTOR.findOne({email:email}).then((savedUser) => {
         if(!savedUser){
             return res.status(422).json({error:"Invalid Email"})
         }
@@ -157,9 +153,9 @@ router.post("/director-signin" , (req , res) => {
             if(match){
                 // return res.status(200).json({message :"Signed In Successufully" })
                 const token = jwt.sign({_id:savedUser.id} , Jwt_secret)
-                const {_id ,name , email , state , district , club } = savedUser
-                res.json({token , user:{_id ,name , email,  state , district , club  }})
-                console.log({token , user:{_id ,name , email ,  state , district , club}})
+                const {_id ,name , email , state , district , clubName } = savedUser
+                res.json({token , user:{_id ,name , email,  state , district , clubName  }})
+                console.log({token , user:{_id ,name , email ,  state , district , clubName}})
             }else{
                 return res.status(422).json({error :"Invalid password" })
             }
@@ -172,8 +168,8 @@ router.post("/director-signin" , (req , res) => {
 
 
 
-router.post("/editor-signup", async (req, res) => {
-  const { name, password, email, state, district, club } = req.body;
+router.post("/TECHEDITOR-signup", async (req, res) => {
+  const { name, password, email, state, district, clubName } = req.body;
 
   const ip =
     req.headers["cf-connecting-ip"] ||
@@ -182,13 +178,13 @@ router.post("/editor-signup", async (req, res) => {
     req.socket.remoteAddress ||
     "";
 
-  if (!name || !password || !email || !state || !district || !club) {
+  if (!name || !password || !email || !state || !district || !clubName) {
     return res.status(422).json({ error: "Please add all the fields" });
   }
 
   try {
-    const savedUser = await EDITOR.findOne({
-      $or: [{ email: email }, { club: club }]
+    const savedUser = await TECHEDITOR.findOne({
+      $or: [{ email: email }, { clubName: clubName }]
     });
 
     if (savedUser) {
@@ -199,21 +195,21 @@ router.post("/editor-signup", async (req, res) => {
 
     const hashedPassword = await bcryptjs.hash(password, 12);
 
-    const director = new EDITOR({
+    const director = new TECHEDITOR({
       name,
       email,
       password: hashedPassword,
       ip,
       state,
       district,
-      club: club.toUpperCase()
+      clubName: clubName.toUpperCase()
     });
 
     const savedDirector = await director.save();
 
-    if (club.toUpperCase() === "ART") {
-      const artClubId = "684a8c32d27f1ad8681187d0";
-      await ARTCLUB.findByIdAndUpdate(artClubId, {
+    if (clubName.toUpperCase() === "TECH") {
+      const techClubId = "684a8c32d27f1ad8681187d0";
+      await TECHCLUB.findByIdAndUpdate(techClubId, {
         $push: { director: savedDirector._id }
       });
     }
@@ -227,14 +223,14 @@ router.post("/editor-signup", async (req, res) => {
 
 
 
-router.post("/editor-signin" , (req , res) => {
+router.post("/TECHEDITOR-signin" , (req , res) => {
     const {email , password} = req.body;
 
     if(!email || !password){
         return res.status(422).json({error: "please add all the fields"})
     }
 
-    EDITOR.findOne({email:email}).then((savedUser) => {
+    TECHEDITOR.findOne({email:email}).then((savedUser) => {
         if(!savedUser){
             return res.status(422).json({error:"Invalid Email"})
         }
@@ -242,9 +238,9 @@ router.post("/editor-signin" , (req , res) => {
             if(match){
                 // return res.status(200).json({message :"Signed In Successufully" })
                 const token = jwt.sign({_id:savedUser.id} , Jwt_secret)
-                const {_id ,name , email , state , district , club } = savedUser
-                res.json({token , user:{_id ,name , email,  state , district , club  }})
-                console.log({token , user:{_id ,name , email ,  state , district , club}})
+                const {_id ,name , email , state , district , clubName } = savedUser
+                res.json({token , user:{_id ,name , email,  state , district , clubName  }})
+                console.log({token , user:{_id ,name , email ,  state , district , clubName}})
             }else{
                 return res.status(422).json({error :"Invalid password" })
             }
@@ -259,94 +255,8 @@ router.post("/editor-signin" , (req , res) => {
 
 
 
-// router.post("/judge-signup", async (req, res) => {
-//   const { name, password, email, state, district, clubName } = req.body;
-
-//   const ip =
-//     req.headers["cf-connecting-ip"] ||
-//     req.headers["x-real-ip"] ||
-//     req.headers["x-forwarded-for"] ||
-//     req.socket.remoteAddress ||
-//     "";
-
-//   if (!name || !password || !email || !state || !district || !clubName) {
-//     return res.status(422).json({ error: "Please add all the fields" });
-//   }
-
-//   try {
-//     const savedUser = await JUDGE.findOne({
-//       $or: [{ email: email }, { clubName: clubName }]
-//     });
-
-//     if (savedUser) {
-//       return res
-//         .status(422)
-//         .json({ error: "User already exists with that email or club name" });
-//     }
-
-//     const hashedPassword = await bcryptjs.hash(password, 12);
-
-//     const director = new JUDGE({
-//       name,
-//       email,
-//       password: hashedPassword,
-//       ip,
-//       state,
-//       district,
-//       clubName: clubName.toUpperCase()
-//     });
-
-//     const savedDirector = await director.save();
-
-//     if (clubName.toUpperCase() === "ART") {
-//       const artClubId = "684a8c32d27f1ad8681187d0";
-//       await ARTCLUB.findByIdAndUpdate(artClubId, {
-//         $push: { director: savedDirector._id }
-//       });
-//     }
-
-//     res.json({ message: "Judge registered successfully" });
-//   } catch (err) {
-//     console.error("Signup error:", err);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// });
-
-
-
-
-// router.post("/judge-signin" , (req , res) => {
-//     const {email , password} = req.body;
-
-//     if(!email || !password){
-//         return res.status(422).json({error: "please add all the fields"})
-//     }
-
-//     JUDGE.findOne({email:email}).then((savedUser) => {
-//         if(!savedUser){
-//             return res.status(422).json({error:"Invalid Email"})
-//         }
-//         bcryptjs.compare(password , savedUser.password).then((match) => {
-//             if(match){
-//                 // return res.status(200).json({message :"Signed In Successufully" })
-//                 const token = jwt.sign({_id:savedUser.id} , Jwt_secret)
-//                 const {_id ,name , email , state , district , clubName } = savedUser
-//                 res.json({token , user:{_id ,name , email,  state , district , clubName  }})
-//                 console.log({token , user:{_id ,name , email ,  state , district , clubName}})
-//             }else{
-//                 return res.status(422).json({error :"Invalid password" })
-//             }
-//         })
-//         .catch(err => console.log(err))
-//         // console.log(savedUser)
-//     })
-// })
-
-
-
-
-router.post("/principle-signup", async (req, res) => {
-  const { name, password, email, state, district, club } = req.body;
+router.post("/TECHJUDGE-signup", async (req, res) => {
+  const { name, password, email, state, district, clubName } = req.body;
 
   const ip =
     req.headers["cf-connecting-ip"] ||
@@ -355,13 +265,13 @@ router.post("/principle-signup", async (req, res) => {
     req.socket.remoteAddress ||
     "";
 
-  if (!name || !password || !email || !state || !district || !club) {
+  if (!name || !password || !email || !state || !district || !clubName) {
     return res.status(422).json({ error: "Please add all the fields" });
   }
 
   try {
-    const savedUser = await PRINCIPLE.findOne({
-      $or: [{ email: email }, { club: club }]
+    const savedUser = await TECHJUDGE.findOne({
+      $or: [{ email: email }, { clubName: clubName }]
     });
 
     if (savedUser) {
@@ -372,21 +282,21 @@ router.post("/principle-signup", async (req, res) => {
 
     const hashedPassword = await bcryptjs.hash(password, 12);
 
-    const director = new PRINCIPLE({
+    const director = new TECHJUDGE({
       name,
       email,
       password: hashedPassword,
       ip,
       state,
       district,
-      club: club
+      clubName: clubName.toUpperCase()
     });
 
     const savedDirector = await director.save();
 
-    if (club.toUpperCase() === "ART") {
-      const artClubId = "684a8c32d27f1ad8681187d0";
-      await ARTCLUB.findByIdAndUpdate(artClubId, {
+    if (clubName.toUpperCase() === "TECH") {
+      const techClubId = "684a8c32d27f1ad8681187d0";
+      await TECHCLUB.findByIdAndUpdate(techClubId, {
         $push: { director: savedDirector._id }
       });
     }
@@ -401,14 +311,14 @@ router.post("/principle-signup", async (req, res) => {
 
 
 
-router.post("/principle-signin" , (req , res) => {
+router.post("/TECHJUDGE-signin" , (req , res) => {
     const {email , password} = req.body;
 
     if(!email || !password){
         return res.status(422).json({error: "please add all the fields"})
     }
 
-    PRINCIPLE.findOne({email:email}).then((savedUser) => {
+    TECHJUDGE.findOne({email:email}).then((savedUser) => {
         if(!savedUser){
             return res.status(422).json({error:"Invalid Email"})
         }
@@ -416,9 +326,95 @@ router.post("/principle-signin" , (req , res) => {
             if(match){
                 // return res.status(200).json({message :"Signed In Successufully" })
                 const token = jwt.sign({_id:savedUser.id} , Jwt_secret)
-                const {_id ,name , email , state , district , club } = savedUser
-                res.json({token , user:{_id ,name , email,  state , district , club  }})
-                console.log({token , user:{_id ,name , email ,  state , district , club}})
+                const {_id ,name , email , state , district , clubName } = savedUser
+                res.json({token , user:{_id ,name , email,  state , district , clubName  }})
+                console.log({token , user:{_id ,name , email ,  state , district , clubName}})
+            }else{
+                return res.status(422).json({error :"Invalid password" })
+            }
+        })
+        .catch(err => console.log(err))
+        // console.log(savedUser)
+    })
+})
+
+
+
+
+router.post("/TECHPRINCIPLE-signup", async (req, res) => {
+  const { name, password, email, state, district, clubName } = req.body;
+
+  const ip =
+    req.headers["cf-connecting-ip"] ||
+    req.headers["x-real-ip"] ||
+    req.headers["x-forwarded-for"] ||
+    req.socket.remoteAddress ||
+    "";
+
+  if (!name || !password || !email || !state || !district || !clubName) {
+    return res.status(422).json({ error: "Please add all the fields" });
+  }
+
+  try {
+    const savedUser = await TECHPRINCIPLE.findOne({
+      $or: [{ email: email }, { clubName: clubName }]
+    });
+
+    if (savedUser) {
+      return res
+        .status(422)
+        .json({ error: "User already exists with that email or club name" });
+    }
+
+    const hashedPassword = await bcryptjs.hash(password, 12);
+
+    const director = new TECHPRINCIPLE({
+      name,
+      email,
+      password: hashedPassword,
+      ip,
+      state,
+      district,
+      clubName: clubName.toUpperCase()
+    });
+
+    const savedDirector = await director.save();
+
+    if (clubName.toUpperCase() === "TECH") {
+      const techClubId = "684a8c32d27f1ad8681187d0";
+      await TECHCLUB.findByIdAndUpdate(techClubId, {
+        $push: { director: savedDirector._id }
+      });
+    }
+
+    res.json({ message: "Principal registered successfully" });
+  } catch (err) {
+    console.error("Signup error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+
+
+router.post("/TECHPRINCIPLE-signin" , (req , res) => {
+    const {email , password} = req.body;
+
+    if(!email || !password){
+        return res.status(422).json({error: "please add all the fields"})
+    }
+
+    TECHPRINCIPLE.findOne({email:email}).then((savedUser) => {
+        if(!savedUser){
+            return res.status(422).json({error:"Invalid Email"})
+        }
+        bcryptjs.compare(password , savedUser.password).then((match) => {
+            if(match){
+                // return res.status(200).json({message :"Signed In Successufully" })
+                const token = jwt.sign({_id:savedUser.id} , Jwt_secret)
+                const {_id ,name , email , state , district , clubName } = savedUser
+                res.json({token , user:{_id ,name , email,  state , district , clubName  }})
+                console.log({token , user:{_id ,name , email ,  state , district , clubName}})
             }else{
                 return res.status(422).json({error :"Invalid password" })
             }

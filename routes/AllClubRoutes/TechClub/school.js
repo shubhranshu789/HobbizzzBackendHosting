@@ -2,14 +2,15 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
 
+const requireLoginUser = require("../../../middleWares/requireLoginUserTech");
 
 
-const SCHOOL = mongoose.model("SCHOOL");
-const USER = mongoose.model("USER");
+const SCHOOL = mongoose.model("TECHSCHOOL");
+const USER = mongoose.model("TECHUSER");
 
 
 // GET /get-school?district=Varanasi&club=artclub
-router.get("/get-school", async (req, res) => {
+router.get("/get-school-tech", async (req, res) => {
   const { district, club } = req.query;
 
   if (!district || !club) {
@@ -35,7 +36,7 @@ router.get("/get-school", async (req, res) => {
 });
 
 // GET /get-students?club=artclub&district=Kanpur&school=St. Xavier's
-router.get("/get-students", async (req, res) => {
+router.get("/get-students-tech", async (req, res) => {
   const { district, school } = req.query;
 
   // Validate required parameters
@@ -64,7 +65,7 @@ router.get("/get-students", async (req, res) => {
 
 
 
-router.get("/get-captain", async (req, res) => {
+router.get("/get-captain-tech", async (req, res) => {
   const { district, club, school } = req.query;
 
   if (!district || !club || !school) {
@@ -87,7 +88,7 @@ router.get("/get-captain", async (req, res) => {
 });
 
 
-router.get("/get-correspondent", async (req, res) => {
+router.get("/get-correspondent-tech", async (req, res) => {
   const { district, club, school } = req.query;
 
   if (!district || !club || !school) {
@@ -110,7 +111,7 @@ router.get("/get-correspondent", async (req, res) => {
 });
 
 
-router.put("/make-captain", async (req, res) => {
+router.put("/make-captain-tech", async (req, res) => {
   const { district, club, school, studentId } = req.body;
 
   if (!district || !club || !school || !studentId) {

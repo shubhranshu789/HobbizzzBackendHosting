@@ -4,13 +4,12 @@ const router = express.Router();
 
 const bcryptjs = require('bcryptjs');
 const jwt = require("jsonwebtoken");
+const {Jwt_secret} = require("../../../keys");
+
+const requireLoginUserCraft = require("../../../middleWares/requireLoginUserCraft");
 
 const CRAFTCLUB = mongoose.model("CRAFTCLUB");
-const {Jwt_secret} = require("../../../keys");
-const requireLoginUserCraft = require("../../../middleWares/requireLoginUserCraft");
-const requireLogin = require("../../../middleWares/requireLogin");
 const CABINATE = mongoose.model("CRAFTCABINATE");
-const DIRECTOR = mongoose.model("DIRECTOR");
 const SCHOOL = mongoose.model("CRAFTSCHOOL");
 const USER = mongoose.model("CRAFTUSER");
 
