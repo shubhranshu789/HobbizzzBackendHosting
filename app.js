@@ -86,6 +86,20 @@ require('./AllModels/techClubModel/EditorTechClub/techJournal')
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(require('./routes/AllClubRoutes/ArtClub/auth'))
@@ -95,8 +109,6 @@ app.use(require('./routes/AllClubRoutes/ArtClub/user'))
 app.use(require('./routes/AllClubRoutes/ArtClub/artclub'))
 app.use(require('./routes/AllClubRoutes/ArtClub/compitition'))
 app.use(require('./routes/AllClubRoutes/ArtClub/editorArtClub'))
-
-
 app.use(require('./routes/chapter'))
 
 
