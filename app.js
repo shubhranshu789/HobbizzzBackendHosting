@@ -69,10 +69,12 @@ require('./AllModels/techClubModel/techeditor')
 require('./AllModels/techClubModel/techjudge')
 require('./AllModels/techClubModel/techprinciple')
 require('./AllModels/techClubModel/techuser')
-require('./AllModels/techClubModel/techschool.js')
-require('./AllModels/techClubModel/localevents')
 require('./AllModels/techClubModel/EditorTechClub/techaddActivity')
 require('./AllModels/techClubModel/EditorTechClub/techaddCompitition')
+
+require('./AllModels/techClubModel/techschool.js')
+require('./AllModels/techClubModel/localevents')
+
 require('./AllModels/techClubModel/EditorTechClub/techClubDomain')
 require('./AllModels/techClubModel/EditorTechClub/techClubGallery')
 require('./AllModels/techClubModel/EditorTechClub/techClubHeritage')
@@ -81,12 +83,38 @@ require('./AllModels/techClubModel/EditorTechClub/techClublegacy')
 require('./AllModels/techClubModel/EditorTechClub/techJournal')
 
 
+//-------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------photoClubModel-----------------------------------------------
+require('./AllModels/photographyClubModel/clubs/photoClubs.js')
+require('./AllModels/photographyClubModel/addActivity')
+require('./AllModels/photographyClubModel/addCompitition')
+require('./AllModels/photographyClubModel/photocabinate')
+require('./AllModels/photographyClubModel/photodirector')
+require('./AllModels/photographyClubModel/photodistrict')
+require('./AllModels/photographyClubModel/photoeditor')
+require('./AllModels/photographyClubModel/photojudge')
+require('./AllModels/photographyClubModel/photoprinciple')
+require('./AllModels/photographyClubModel/photouser')
+
+
+
+require('./AllModels/photographyClubModel/EditorArtClub/clubDomain.js')
+require('./AllModels/photographyClubModel/EditorArtClub/clubGallery.js')
+require('./AllModels/photographyClubModel/EditorArtClub/clubHeritage.js')
+require('./AllModels/photographyClubModel/EditorArtClub/clubNews.js')
+require('./AllModels/photographyClubModel/EditorArtClub/clublegacy.js')
+require('./AllModels/photographyClubModel/EditorArtClub/journal.js')
 
 
 
 
 
 
+//-------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -135,6 +163,21 @@ app.use(require('./routes/AllClubRoutes/TechClub/club'))
 app.use(require('./routes/AllClubRoutes/TechClub/compitition'))
 app.use(require('./routes/AllClubRoutes/TechClub/editor'))
 app.use(require('./routes/AllClubRoutes/TechClub/school'))
+
+
+
+// ----------------------------------------------------------------------------------------------
+
+
+
+//---------------------------------------------PhotoClubRoute-----------------------------------------------------
+
+app.use(require('./routes/AllClubRoutes/PhotoClub/activity.js'))
+app.use(require('./routes/AllClubRoutes/PhotoClub/auth.js'))
+app.use(require('./routes/AllClubRoutes/PhotoClub/club.js'))
+app.use(require('./routes/AllClubRoutes/PhotoClub/compitition.js'))
+app.use(require('./routes/AllClubRoutes/PhotoClub/editorPhotoClub.js'))
+
 
 
 
