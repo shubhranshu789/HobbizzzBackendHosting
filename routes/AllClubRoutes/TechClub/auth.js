@@ -202,17 +202,17 @@ router.post("/TECHEDITOR-signup", async (req, res) => {
       ip,
       state,
       district,
-      club: clubName
+      clubName: clubName
     });
 
     const savedDirector = await director.save();
 
-    if (clubName.toUpperCase() === "TECH") {
-      const techClubId = "684a8c32d27f1ad8681187d0";
-      await TECHCLUB.findByIdAndUpdate(techClubId, {
-        $push: { director: savedDirector._id }
-      });
-    }
+    // if (clubName.toUpperCase() === "TECH") {
+    //   const techClubId = "684a8c32d27f1ad8681187d0";
+    //   await TECHCLUB.findByIdAndUpdate(techClubId, {
+    //     $push: { director: savedDirector._id }
+    //   });
+    // }
 
     res.json({ message: "Editor registered successfully" });
   } catch (err) {

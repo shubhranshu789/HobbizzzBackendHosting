@@ -162,6 +162,7 @@ app.use(require('./routes/AllClubRoutes/TechClub/activity'))
 app.use(require('./routes/AllClubRoutes/TechClub/club'))
 app.use(require('./routes/AllClubRoutes/TechClub/compitition'))
 app.use(require('./routes/AllClubRoutes/TechClub/editor'))
+app.use(require('./routes/AllClubRoutes/TechClub/editorPhotoClub.js'))
 app.use(require('./routes/AllClubRoutes/TechClub/school'))
 
 

@@ -429,6 +429,34 @@ router.get("/photoactivity/hallOfFamePosts/:eventId", async (req, res) => {
   }
 });
 
+router.get("/photohall-of-fame", async (req, res) => {
+  try {
+    const activities = await ACTIVITY.find({})
+      .populate("uploads.uploadedBy", "name email"); // 👈 this adds user name/email
+
+    const hallOfFameUploads = [];
+
+    activities.forEach(activity => {
+      const matchingUploads = activity.uploads.filter(upload => upload.isHallofFame === true);
+
+      matchingUploads.forEach(upload => {
+        hallOfFameUploads.push({
+          ...upload.toObject(),
+          activityId: activity._id,
+          activityTitle: activity.title,
+          category: activity.category,
+          uploadedBy: upload.uploadedBy, // will now include name + email
+        });
+      });
+    });
+
+    res.json(hallOfFameUploads);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 
 

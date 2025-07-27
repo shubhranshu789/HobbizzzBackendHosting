@@ -45,7 +45,7 @@ router.post("/techcreate-activity", requireLogin, async (req, res) => {
 });
 
 
-router.get("/techallActivities", requireLogin, (req, res) => {
+router.get("/techallActivities", (req, res) => {
   TECHACTIVITY.find().then((events) => {
     res.json(events);
   });
@@ -428,6 +428,34 @@ router.get("/techactivity/hallOfFamePosts/:eventId", async (req, res) => {
 });
 
 
+
+router.get("/techhall-of-fame", async (req, res) => {
+  try {
+    const activities = await TECHACTIVITY.find({})
+      .populate("uploads.uploadedBy", "name email"); // 👈 this adds user name/email
+
+    const hallOfFameUploads = [];
+
+    activities.forEach(activity => {
+      const matchingUploads = activity.uploads.filter(upload => upload.isHallofFame === true);
+
+      matchingUploads.forEach(upload => {
+        hallOfFameUploads.push({
+          ...upload.toObject(),
+          activityId: activity._id,
+          activityTitle: activity.title,
+          category: activity.category,
+          uploadedBy: upload.uploadedBy, // will now include name + email
+        });
+      });
+    });
+
+    res.json(hallOfFameUploads);
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
 
