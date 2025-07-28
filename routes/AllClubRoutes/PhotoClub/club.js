@@ -5,19 +5,19 @@ const router = express.Router();
 const bcryptjs = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 
-const ARTCLUB = mongoose.model("ARTCLUB");
+const ARTCLUB = mongoose.model("PHOTOCLUB");
 const {Jwt_secret} = require("../../../keys");
 
 
-const requireLoginUser = require("../../../middleWares/requireLoginUser");
+const requireLoginUser = require("../../../middleWares/requireLoginUserPhoto");
 // const requireLogin = require("../../../middleWares/requireLogin");
 
 
 
-const CABINATE = mongoose.model("CABINATE");
-const DIRECTOR = mongoose.model("DIRECTOR");
-const SCHOOL = mongoose.model("SCHOOL");
-const USER = mongoose.model("USER");
+const CABINATE = mongoose.model("PHOTOCABINATE");
+const DIRECTOR = mongoose.model("PHOTODIRECTOR");
+const SCHOOL = mongoose.model("PHOTOSCHOOL");
+const USER = mongoose.model("PHOTOUSER");
 
 
 
@@ -26,7 +26,7 @@ const USER = mongoose.model("USER");
 //===========================================================================================================
 
 
-router.put("/artclub/requestjoin", requireLoginUser, async (req, res) => {
+router.put("/photoclub/requestjoin", requireLoginUser, async (req, res) => {
   try {
     const { district } = req.query;
 
@@ -62,7 +62,7 @@ router.put("/artclub/requestjoin", requireLoginUser, async (req, res) => {
 
 
 
-router.put("/artclub/requestjoinforambassador", requireLoginUser, async (req, res) => {
+router.put("/photoclub/requestjoinforambassador", requireLoginUser, async (req, res) => {
   try {
     const { district } = req.query;
     if (!district) {
@@ -90,7 +90,7 @@ router.put("/artclub/requestjoinforambassador", requireLoginUser, async (req, re
   }
 });
 
-router.put("/artclub/withdrawjoin", requireLoginUser, async (req, res) => {
+router.put("/photoclub/withdrawjoin", requireLoginUser, async (req, res) => {
   try {
     const clubId = "6852b1de00a4d1168f1465e4";
 
@@ -260,7 +260,7 @@ router.put("/artclub/withdrawjoin", requireLoginUser, async (req, res) => {
 // for head==================================================================================================
 
 
-router.get("/artclub/head-request", async (req, res) => {
+router.get("/photoclub/head-request", async (req, res) => {
   const { district } = req.query;
 
   if (!district) {
@@ -285,7 +285,7 @@ router.get("/artclub/head-request", async (req, res) => {
 });
 
 // Set head for a club
-router.put("/artclub/approve-head", async (req, res) => {
+router.put("/artcphoto/approve-head", async (req, res) => {
   try {
     const userId = req.query.userid;
     const district = req.query.district;
@@ -311,7 +311,7 @@ router.put("/artclub/approve-head", async (req, res) => {
     // Update the user's club field to 'artclub'
     const updatedUser = await CABINATE.findByIdAndUpdate(
       userId,
-      { club: "artclub" },
+      { club: "photoclub" },
       { new: true }
     );
 
@@ -327,7 +327,7 @@ router.put("/artclub/approve-head", async (req, res) => {
 });
 
 
-router.put("/artclub/disapprove-head", async (req, res) => {
+router.put("/photoclub/disapprove-head", async (req, res) => {
   try {
     const userId = req.query.userid;
     const district = req.query.district;
@@ -352,7 +352,7 @@ router.put("/artclub/disapprove-head", async (req, res) => {
 });
 
 
-router.get("/artclub/gethead", async (req, res) => {
+router.get("/photoclub/gethead", async (req, res) => {
   const { district } = req.query;
   if (!district) {
     return res.status(400).json({ error: "District parameter is required" });
@@ -386,7 +386,7 @@ router.get("/artclub/gethead", async (req, res) => {
 //=========================================================================================================
 // for ambassadors==================================================================================================
 
-router.get("/artclub/ambassador-requests", requireLoginUser, async (req, res) => {
+router.get("/photoclub/ambassador-requests", requireLoginUser, async (req, res) => {
   const { district } = req.query;
 
   if (!district) {
@@ -408,7 +408,7 @@ router.get("/artclub/ambassador-requests", requireLoginUser, async (req, res) =>
   }
 });
 
-router.put("/artclub/approve-ambassador", requireLoginUser, async (req, res) => {
+router.put("/photoclub/approve-ambassador", requireLoginUser, async (req, res) => {
   try {
     const userId = req.query.userid;
     const district = req.query.district;
@@ -426,7 +426,7 @@ router.put("/artclub/approve-ambassador", requireLoginUser, async (req, res) => 
     const existingSchool = await SCHOOL.findOne({
       school: schoolName,
       district: district,
-      club: 'artclub'
+      club: 'photoclub'
     });
 
     if (existingSchool) {
@@ -437,7 +437,7 @@ router.put("/artclub/approve-ambassador", requireLoginUser, async (req, res) => 
     const newSchool = await SCHOOL.create({
       school: schoolName,
       district: district,
-      club: 'artclub',
+      club: 'photoclub',
       ambassador: userId,
       captain: null
     });
@@ -459,7 +459,7 @@ router.put("/artclub/approve-ambassador", requireLoginUser, async (req, res) => 
     // Update the user's club field to 'artclub'
     const updatedUser = await CABINATE.findByIdAndUpdate(
       userId,
-      { club: "artclub" },
+      { club: "photoclub" },
       { new: true }
     );
 
@@ -476,7 +476,7 @@ router.put("/artclub/approve-ambassador", requireLoginUser, async (req, res) => 
 
 
 
-router.put("/artclub/disapprove-ambassador", async (req, res) => {
+router.put("/photoclub/disapprove-ambassador", async (req, res) => {
   try {
     const userId = req.query.userid;
     const district = req.query.district;
@@ -501,7 +501,7 @@ router.put("/artclub/disapprove-ambassador", async (req, res) => {
 });
 
 
-router.get("/artclub/statusambassador", requireLoginUser, async (req, res) => {
+router.get("/photoclub/statusambassador", requireLoginUser, async (req, res) => {
   try {
     const club = await ARTCLUB.findOne()
       .populate("ambassadors", "name email avatar") // populate selected fields
@@ -525,7 +525,7 @@ router.get("/artclub/statusambassador", requireLoginUser, async (req, res) => {
 
 
 
-router.get("/artclub/status", async (req, res) => {
+router.get("/photoclub/status", async (req, res) => {
   try {
     const clubId = "6852b1de00a4d1168f1465e4";
 
@@ -543,7 +543,7 @@ router.get("/artclub/status", async (req, res) => {
 });
 
 // GET /artClub/info?district=Varanasi
-router.get("/artclub/info", async (req, res) => {
+router.get("/photoclub/info", async (req, res) => {
   const { district } = req.query;
 
   if (!district) {
@@ -557,10 +557,10 @@ router.get("/artclub/info", async (req, res) => {
       return res.status(404).json({ error: "Art club not found for this district" });
     }
     // Fetch schools for this district and artclub
-    const schools = await SCHOOL.find({ district, club: 'artclub' });
+    const schools = await SCHOOL.find({ district, club: 'photoclub' });
 
     // Fetch students for this district and artclub
-    const students = await USER.find({ district, club: 'artclub' });
+    const students = await USER.find({ district, club: 'photoclub' });
 
 
     // Prepare response object
@@ -581,7 +581,7 @@ router.get("/artclub/info", async (req, res) => {
 });
 
 
-router.get("/artclub/can-manage-council", requireLoginUser, async (req, res) => {
+router.get("/photoclub/can-manage-council", requireLoginUser, async (req, res) => {
   try {
     const clubId = "6852b1de00a4d1168f1465e4"; // or pass dynamically
     const userId = req.user._id;

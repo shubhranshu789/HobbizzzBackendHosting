@@ -90,24 +90,23 @@ require('./AllModels/techClubModel/EditorTechClub/techJournal')
 
 //----------------------------------------------------------photoClubModel-----------------------------------------------
 require('./AllModels/photographyClubModel/clubs/photoClubs.js')
-require('./AllModels/photographyClubModel/addActivity')
-require('./AllModels/photographyClubModel/addCompitition')
+require('./AllModels/photographyClubModel/photoaddActivity')
+require('./AllModels/photographyClubModel/photoaddCompitition')
 require('./AllModels/photographyClubModel/photocabinate')
 require('./AllModels/photographyClubModel/photodirector')
-require('./AllModels/photographyClubModel/photodistrict')
 require('./AllModels/photographyClubModel/photoeditor')
 require('./AllModels/photographyClubModel/photojudge')
 require('./AllModels/photographyClubModel/photoprinciple')
+require('./AllModels/photographyClubModel/photoschool')
 require('./AllModels/photographyClubModel/photouser')
+require('./AllModels/photographyClubModel/localevents')
 
-
-
-require('./AllModels/photographyClubModel/EditorArtClub/clubDomain.js')
-require('./AllModels/photographyClubModel/EditorArtClub/clubGallery.js')
-require('./AllModels/photographyClubModel/EditorArtClub/clubHeritage.js')
-require('./AllModels/photographyClubModel/EditorArtClub/clubNews.js')
-require('./AllModels/photographyClubModel/EditorArtClub/clublegacy.js')
-require('./AllModels/photographyClubModel/EditorArtClub/journal.js')
+require('./AllModels/photographyClubModel/EditorPhotoClub/clubDomain.js')
+require('./AllModels/photographyClubModel/EditorPhotoClub/clubGallery.js')
+require('./AllModels/photographyClubModel/EditorPhotoClub/clubHeritage.js')
+require('./AllModels/photographyClubModel/EditorPhotoClub/clubNews.js')
+require('./AllModels/photographyClubModel/EditorPhotoClub/clublegacy.js')
+require('./AllModels/photographyClubModel/EditorPhotoClub/journal.js')
 
 
 
@@ -178,6 +177,7 @@ app.use(require('./routes/AllClubRoutes/PhotoClub/auth.js'))
 app.use(require('./routes/AllClubRoutes/PhotoClub/club.js'))
 app.use(require('./routes/AllClubRoutes/PhotoClub/compitition.js'))
 app.use(require('./routes/AllClubRoutes/PhotoClub/editorPhotoClub.js'))
+app.use(require('./routes/AllClubRoutes/PhotoClub/school.js'))
 
 
 

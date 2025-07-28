@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
-require("./AllModels/craftClubModel/clubs/craftClubs"); // adjust path if needed
+require("./AllModels/photographyClubModel/clubs/photoClubs"); // adjust path if needed
 
-const craftClub = mongoose.model("CRAFTCLUB"); // ensure this matches your model name
+const craftClub = mongoose.model("PHOTOCLUB"); // ensure this matches your model name
 // connect to your MongoDB
 
 const {mongoURl}  = require('./keys');

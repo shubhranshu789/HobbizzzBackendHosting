@@ -6,12 +6,15 @@ const router = express.Router();
 const DIRECTOR = mongoose.model("DIRECTOR");
 const CRAFTDIRECTOR = mongoose.model("CRAFTDIRECTOR");
 const TECHDIRECTOR = mongoose.model("TECHDIRECTOR");
+const PHOTODIRECTOR = mongoose.model("PHOTODIRECTOR");
 const LOCALEVENT= mongoose.model("LOCALEVENT");
 const CRAFTLOCALEVENT= mongoose.model("CRAFTLOCALEVENT");
 const TECHLOCALEVENT= mongoose.model("TECHLOCALEVENT");
+const PHOTOLOCALEVENT= mongoose.model("PHOTOLOCALEVENT");
 const ARTCLUB = mongoose.model("ARTCLUB");
 const CRAFTCLUB = mongoose.model("CRAFTCLUB");
 const TECHCLUB = mongoose.model("TECHCLUB");
+const PHOTOCLUB = mongoose.model("PHOTOCLUB");
 
 
 // GET /get-chapter?club=artclub&district=Varanasi
@@ -19,7 +22,8 @@ router.get("/get-events", async (req, res) => {
   const eventModels = {
   "artclub": LOCALEVENT,
   "craftclub": CRAFTLOCALEVENT,
-  "techclub": TECHLOCALEVENT
+  "techclub": TECHLOCALEVENT,
+  "photoclub": PHOTOLOCALEVENT
 };
   try {
     const { club, district } = req.query;
@@ -76,17 +80,21 @@ router.post("/create-event", async (req, res) => {
   const clubModels = {
     "artclub": ARTCLUB,
     "craftclub": CRAFTCLUB,
-    "techclub": TECHCLUB
+    "techclub": TECHCLUB,
+    "photoclub": PHOTOCLUB
   };
   const eventModels = {
     "artclub": LOCALEVENT,
     "craftclub": CRAFTLOCALEVENT,
-    "techclub": TECHLOCALEVENT
+    "techclub": TECHLOCALEVENT,
+    "photoclub": PHOTOLOCALEVENT
+
   };
   const directorModels ={
     "artclub": DIRECTOR,
     "craftclub": CRAFTDIRECTOR,
-    "techclub": TECHDIRECTOR
+    "techclub": TECHDIRECTOR,
+    "photoclub": PHOTODIRECTOR
   };
 
   try {
@@ -155,7 +163,9 @@ router.delete("/delete-event/", async (req, res) => {
   const eventModels = {
     "artclub": LOCALEVENT,
     "craftclub": CRAFTLOCALEVENT,
-    "techclub": TECHLOCALEVENT
+    "techclub": TECHLOCALEVENT,
+    "photoclub": PHOTOLOCALEVENT
+
   };
   
   const eventId = req.query.eventId;
@@ -188,7 +198,9 @@ router.get("/event-details", async (req, res) => {
   const eventModels = {
     "artclub": LOCALEVENT,
     "craftclub": CRAFTLOCALEVENT,
-    "techclub": TECHLOCALEVENT
+    "techclub": TECHLOCALEVENT,
+    "photoclub": PHOTOLOCALEVENT
+
   };
 
   const event_id = req.query.event_id;
