@@ -406,7 +406,7 @@ router.patch("/photoassign-mark", async (req, res) => {
   // Map judgeId to judge field name
   let fieldToUpdate;
   switch (judgeId) {
-    case "685d53b2537fff4608e05c67": // Judge 1 ID
+    case "68899dd264ced965a2a6ea1c": // Judge 1 ID
       fieldToUpdate = "judge1";
       break;
     case "685c4be8c6a4e7621e7d1740":
