@@ -20,11 +20,11 @@ const activitySchema = new mongoose.Schema(
     title: { type: String, required: true },
     desc: { type: String, required: true },
     pic: { type: String, required: true }, 
-    postedBy: [{ type: ObjectId, ref: "DIRECTOR" }],
+    postedBy: [{ type: ObjectId, ref: "PHOTODIRECTOR" }],
     Registrations: [{ type: ObjectId, ref: "USER" }],
     isLive: { type: Boolean, default: false },
     resultLive: { type: Boolean, default: false },
-    judges: [{ type: ObjectId, ref: "JUDGE" }],
+    judges: [{ type: ObjectId, ref: "PHOTOJUDGE" }],
     uploads: [uploadSchema], 
   },
   { timestamps: true }

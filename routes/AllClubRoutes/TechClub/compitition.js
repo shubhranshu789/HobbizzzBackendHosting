@@ -9,7 +9,7 @@ const requireLoginPrinciple = require("../../../middleWares/requireLoginPrincipl
 // const CABINATE = mongoose.model("CABINATE");
 
 const TECHCOMPITITION = mongoose.model("TECHCOMPITITION");
-const USER = mongoose.model("TECHUSER");
+const USER = mongoose.model("USER");
 const TECHJUDGE = mongoose.model("TECHJUDGE");
 
 
@@ -399,7 +399,7 @@ router.patch("/techAssign-mark", async (req, res) => {
   // Map judgeId to judge field name
   let fieldToUpdate;
   switch (judgeId) {
-    case "685d53b2537fff4608e05c67": // Judge 1 ID
+    case "6888cfb682607d0cadfd3ed0": // Judge 1 ID
       fieldToUpdate = "judge1";
       break;
     case "685c4be8c6a4e7621e7d1740":
@@ -515,54 +515,9 @@ router.get("/:CompetitionId/techuploads/total-scores", async (req, res) => {
 });
 
 
-router.get("/:CompetitionId/newresult",async (req,res)=>{
-  // return response.json({msg: "Helloooo"})
-  console.log("hello");
-  const { competitionId } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(competitionId)) {
-    return res.status(400).json({ error: "Invalid competition ID" });
-  }
-
-  try {
-    const competition = await TECHCOMPITITION.findById(competitionId).populate("uploads.uploadedBy", "name email");
-
-    if (!competition) {
-      return res.status(404).json({ error: "Competition not found" });
-    }
-
-    const results = competition.uploads.map(upload => {
-      const judge1 = upload.judge1 || 0;
-      const judge2 = upload.judge2 || 0;
-      const judge3 = upload.judge3 || 0;
-      const judge4 = upload.judge4 || 0;
-      const totalScore = judge1 + judge2 + judge3 + judge4;
-
-      return {
-        uploadId: upload._id,
-        pic: upload.pic,
-        totalScore,
-        breakdown: { judge1, judge2, judge3, judge4 },
-        uploadedBy: upload.uploadedBy || null,
-        createdAt: upload.createdAt
-      };
-    });
-
-    // Sort by totalScore descending
-    results.sort((a, b) => b.totalScore - a.totalScore);
-
-    // Add ranks
-    results.forEach((item, index) => {
-      item.rank = index + 1;
-    });
-
-    res.json(results);
-  } catch (error) {
-    console.error("Error generating results:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-})
-// router.get("/:CompetitionId/tech-results", async (req, res) => {
+// router.get("/:CompetitionId/newresult",async (req,res)=>{
+//   // return response.json({msg: "Helloooo"})
+//   console.log("hello");
 //   const { competitionId } = req.params;
 
 //   if (!mongoose.Types.ObjectId.isValid(competitionId)) {
@@ -606,7 +561,54 @@ router.get("/:CompetitionId/newresult",async (req,res)=>{
 //     console.error("Error generating results:", error);
 //     res.status(500).json({ error: "Internal server error" });
 //   }
-// });
+// })
+
+
+router.get("/:competitionId/tech-results", async (req, res) => {
+  const { competitionId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(competitionId)) {
+    return res.status(400).json({ error: "Invalid competition ID" });
+  }
+
+  try {
+    const competition = await TECHCOMPITITION.findById(competitionId).populate("uploads.uploadedBy", "name email");
+
+    if (!competition) {
+      return res.status(404).json({ error: "Competition not found" });
+    }
+
+    const results = competition.uploads.map(upload => {
+      const judge1 = upload.judge1 || 0;
+      const judge2 = upload.judge2 || 0;
+      const judge3 = upload.judge3 || 0;
+      const judge4 = upload.judge4 || 0;
+      const totalScore = judge1 + judge2 + judge3 + judge4;
+
+      return {
+        uploadId: upload._id,
+        pic: upload.pic,
+        totalScore,
+        breakdown: { judge1, judge2, judge3, judge4 },
+        uploadedBy: upload.uploadedBy || null,
+        createdAt: upload.createdAt
+      };
+    });
+
+    // Sort by totalScore descending
+    results.sort((a, b) => b.totalScore - a.totalScore);
+
+    // Add ranks
+    results.forEach((item, index) => {
+      item.rank = index + 1;
+    });
+
+    res.json(results);
+  } catch (error) {
+    console.error("Error generating results:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
 router.put("/:CompetitionId/techgenerate-result", async (req, res) => {
@@ -661,6 +663,50 @@ router.get("/techCompetitions/:id", async (req, res) => {
   } catch (error) {
     console.error("Error fetching competition:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
+
+
+
+router.get("/techevent-participants-compi/:eventId", async (req, res) => {
+  try {
+    const { eventId } = req.params;
+
+    // 1. Find the competition by ID and select required fields
+    const event = await TECHCOMPITITION.findById(eventId).select("Registrations uploads");
+
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    // 2. Create a map of uploadedBy => pic
+    const uploadsMap = new Map();
+    event.uploads.forEach(upload => {
+      if (upload.uploadedBy) {
+        uploadsMap.set(upload.uploadedBy.toString(), upload.pic);
+      }
+    });
+
+    // 3. Fetch all registered users' details
+    const users = await USER.find({ _id: { $in: event.Registrations } })
+      .select("_id name email ip");
+
+    // 4. Merge user info with their uploads (if any)
+    const participants = users.map(user => ({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      ip: user.ip,
+      pic: uploadsMap.get(user._id.toString()) || null
+    }));
+
+    return res.status(200).json({ participants });
+
+  } catch (err) {
+    console.error("Error fetching participants:", err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 
