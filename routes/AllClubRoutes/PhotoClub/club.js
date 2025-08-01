@@ -285,7 +285,7 @@ router.get("/photoclub/head-request", async (req, res) => {
 });
 
 // Set head for a club
-router.put("/artcphoto/approve-head", async (req, res) => {
+router.put("/Photoclub/approve-head", async (req, res) => {
   try {
     const userId = req.query.userid;
     const district = req.query.district;
