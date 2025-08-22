@@ -11,7 +11,7 @@ const requireLoginUserCraft = require("../../../middleWares/requireLoginUserCraf
 const CRAFTCLUB = mongoose.model("CRAFTCLUB");
 const CABINATE = mongoose.model("CRAFTCABINATE");
 const SCHOOL = mongoose.model("CRAFTSCHOOL");
-const USER = mongoose.model("CRAFTUSER");
+const USER = mongoose.model("USER");
 
 
 

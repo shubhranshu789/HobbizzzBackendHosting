@@ -17,7 +17,7 @@ const requireLoginUser = require("../../../middleWares/requireLoginUserPhoto");
 const CABINATE = mongoose.model("PHOTOCABINATE");
 const DIRECTOR = mongoose.model("PHOTODIRECTOR");
 const SCHOOL = mongoose.model("PHOTOSCHOOL");
-const USER = mongoose.model("PHOTOUSER");
+const USER = mongoose.model("USER");
 
 
 

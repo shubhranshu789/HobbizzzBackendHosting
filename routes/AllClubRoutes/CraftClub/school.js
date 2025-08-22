@@ -6,7 +6,7 @@ const requireLoginUser = require("../../../middleWares/requireLoginUserCraft");
 
 
 const SCHOOL = mongoose.model("CRAFTSCHOOL");
-const USER = mongoose.model("CRAFTUSER");
+const USER = mongoose.model("USER");
 
 
 // GET /get-school?district=Varanasi&club=artclub

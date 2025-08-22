@@ -10,7 +10,7 @@ const requireLoginUser = require("../../../middleWares/requireUser");
 // const CABINATE = mongoose.model("CABINATE");
 const CRAFTACTIVITY = mongoose.model("CRAFTACTIVITY");
 const ARTCLUB = mongoose.model("CRAFTCLUB");
-const USER = mongoose.model("CRAFTUSER");
+const USER = mongoose.model("USER");
 
 
 router.post("/craftcreate-activity", requireLogin, async (req, res) => {

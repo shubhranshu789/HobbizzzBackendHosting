@@ -11,7 +11,7 @@ const requireLoginUser = require("../../../middleWares/requireLoginUserTech");
 const TECHCLUB = mongoose.model("TECHCLUB");
 const CABINATE = mongoose.model("TECHCABINATE");
 const SCHOOL = mongoose.model("TECHSCHOOL");
-const USER = mongoose.model("TECHUSER");
+const USER = mongoose.model("USER");
 
 
 

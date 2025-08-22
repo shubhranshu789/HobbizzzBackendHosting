@@ -6,7 +6,7 @@ const requireLoginUser = require("../../../middleWares/requireLoginUserPhoto");
 
 
 const SCHOOL = mongoose.model("PHOTOSCHOOL");
-const USER = mongoose.model("PHOTOUSER");
+const USER = mongoose.model("USER");
 
 
 // GET /get-school?district=Varanasi&club=artclub

@@ -6,7 +6,7 @@ const requireLoginUser = require("../../../middleWares/requireLoginUserTech");
 
 
 const SCHOOL = mongoose.model("TECHSCHOOL");
-const USER = mongoose.model("TECHUSER");
+const USER = mongoose.model("USER");
 
 
 // GET /get-school?district=Varanasi&club=artclub
